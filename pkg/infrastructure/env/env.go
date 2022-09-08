@@ -26,7 +26,7 @@ func Get(ctx context.Context) Env {
 	return *e
 }
 
-func WithEnv(ctx context.Context) (context.Context, error) {
+func With(ctx context.Context) (context.Context, error) {
 	var environment Env
 	if _, err := env.UnmarshalFromEnviron(&environment); err != nil {
 		return ctx, fmt.Errorf("unmarshal environment failed: %w", err)

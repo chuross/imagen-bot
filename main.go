@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"imagen/pkg/infrastructure/env"
 	"net/http"
 
@@ -17,7 +18,12 @@ func main() {
 }
 
 func withEnv(c *gin.Context) {
-	env.WithEnv(c.Request.Context())
+	if ctx, err := env.With(c.Request.Context()); err != nil {
+		fmt.Printf("Error: initialize env: %v", err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+	} else {
+		c.Request = c.Request.WithContext(ctx)
+	}
 }
 
 func webhook(c *gin.Context) {
