@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"imagen/pkg/infra/environment"
+	"imagen/internal/pkg/infra/environment"
 
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"

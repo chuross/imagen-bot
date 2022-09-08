@@ -1,7 +1,7 @@
 # Use base golang image from Docker Hub
 FROM golang:1.19 AS build
 
-WORKDIR /hello-world
+WORKDIR /workspace
 
 # Install dependencies in go.mod and go.sum
 COPY go.mod go.sum ./
