@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
-	"imagen/pkg/infrastructure/env"
 	"net/http"
 
+	"imagen/pkg/infra/environment"
+
 	"github.com/gin-gonic/gin"
+	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
 func main() {
@@ -18,14 +20,35 @@ func main() {
 }
 
 func withEnv(c *gin.Context) {
-	if ctx, err := env.With(c.Request.Context()); err != nil {
-		fmt.Printf("Error: initialize env: %v", err)
-		c.AbortWithStatus(http.StatusInternalServerError)
+	if ctx, err := environment.With(c.Request.Context()); err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
 	} else {
 		c.Request = c.Request.WithContext(ctx)
 	}
 }
 
 func webhook(c *gin.Context) {
+	e := environment.MustGet(c.Request.Context())
+
+	bot, err := linebot.New(e.LINE_BOT.SECRET_TOKEN, e.LINE_BOT.CHANNEL_ACCESS_TOKEN)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+	}
+
+	events, err := bot.ParseRequest(c.Request)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+	}
+
+	for _, event := range events {
+		if event.Type != linebot.EventTypeMessage {
+			continue
+		}
+		if event.Message.Type() != linebot.MessageTypeText {
+			continue
+		}
+		fmt.Println(event)
+	}
+
 	c.Status(http.StatusOK)
 }

@@ -1,4 +1,4 @@
-package env
+package environment
 
 import (
 	"context"
@@ -18,19 +18,19 @@ type Env struct {
 	}
 }
 
-func Get(ctx context.Context) Env {
-	e := ctx.Value(envKeyMain).(*Env)
-	if e == nil {
+func MustGet(ctx context.Context) Env {
+	env := ctx.Value(envKeyMain).(*Env)
+	if env == nil {
 		panic("env is not set! must call WithEnv")
 	}
-	return *e
+	return *env
 }
 
 func With(ctx context.Context) (context.Context, error) {
-	var environment Env
-	if _, err := env.UnmarshalFromEnviron(&environment); err != nil {
+	var e Env
+	if _, err := env.UnmarshalFromEnviron(&e); err != nil {
 		return ctx, fmt.Errorf("unmarshal environment failed: %w", err)
 	} else {
-		return context.WithValue(ctx, envKeyMain, &environment), nil
+		return context.WithValue(ctx, envKeyMain, &e), nil
 	}
 }
