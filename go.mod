@@ -1,19 +1,20 @@
-module hello-run
+module imagen
 
 go 1.19
 
 require (
-	cloud.google.com/go v0.104.0
+	github.com/Netflix/go-env v0.0.0-20220526054621-78278af1949d
+	github.com/gin-gonic/gin v1.8.1
 	github.com/hashicorp/go-retryablehttp v0.7.1
 )
 
 require (
 	github.com/gin-contrib/sse v0.1.0 // indirect
-	github.com/gin-gonic/gin v1.8.1 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.11.0 // indirect
 	github.com/goccy/go-json v0.9.11 // indirect
+	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.1 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
