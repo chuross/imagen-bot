@@ -24,10 +24,7 @@ FROM gcr.io/distroless/base
 # See https://golang.org/pkg/runtime/
 ENV GOTRACEBACK=single
 
-# Copy template & assets
-WORKDIR /hello-world
+WORKDIR /workspace
 COPY --from=build /app ./app
-COPY index.html index.html
-COPY assets assets/
 
 ENTRYPOINT ["./app"]
