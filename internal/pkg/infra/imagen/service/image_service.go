@@ -10,9 +10,9 @@ import (
 	"golang.org/x/text/language"
 )
 
-func newImageService(ctx context.Context) domain.ImageService {
-	return &imageService{
-		pubsubClient: pubsub.NewClient(ctx),
+func newImageService() domain.ImageService {
+	return imageService{
+		pubsubClient: pubsub.NewClient(),
 	}
 }
 

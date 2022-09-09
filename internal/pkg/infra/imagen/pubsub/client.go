@@ -16,8 +16,8 @@ type Client interface {
 	PublishGenerateImage(ctx context.Context, prompt string) error
 }
 
-func NewClient(ctx context.Context) Client {
-	return &client{}
+func NewClient() Client {
+	return client{}
 }
 
 type client struct {

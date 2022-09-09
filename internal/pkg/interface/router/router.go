@@ -3,11 +3,17 @@ package router
 import (
 	"imagen/internal/pkg/interface/handler"
 	"imagen/internal/pkg/interface/middleware"
+	"imagen/internal/pkg/usecase/webhook"
 
 	"github.com/gin-gonic/gin"
 )
 
-func Setup(r *gin.Engine) {
-	root := r.Use(middleware.WithEnv)
-	root.POST("/hook", handler.Webhook)
+func Setup(r *gin.Engine, webhookUseCases webhook.UseCases) {
+	root := r.Use(gin.Recovery()).
+		Use(middleware.WithEnv)
+
+	{
+		handler := handler.NewWebhookHandler(webhookUseCases)
+		root.POST("/hook", handler.Hook)
+	}
 }

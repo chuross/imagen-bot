@@ -1,15 +1,29 @@
 package handler
 
 import (
-	"fmt"
 	"imagen/internal/pkg/infra/environment"
+	"imagen/internal/pkg/usecase/webhook"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
-func Webhook(c *gin.Context) {
+const (
+	messageSuccess = "画像リクエスト受け付けました"
+)
+
+type WebhookHandler struct {
+	imageUseCase webhook.ImageUseCase
+}
+
+func NewWebhookHandler(usecases webhook.UseCases) WebhookHandler {
+	return WebhookHandler{
+		imageUseCase: usecases.Image,
+	}
+}
+
+func (h WebhookHandler) Hook(c *gin.Context) {
 	e := environment.MustGet(c.Request.Context())
 
 	bot, err := linebot.New(e.LINE_BOT.SECRET_TOKEN, e.LINE_BOT.CHANNEL_ACCESS_TOKEN)
@@ -26,10 +40,19 @@ func Webhook(c *gin.Context) {
 		if event.Type != linebot.EventTypeMessage {
 			continue
 		}
+
 		if event.Message.Type() != linebot.MessageTypeText {
 			continue
 		}
-		fmt.Println(event)
+
+		if err := h.imageUseCase.Generate(c.Request.Context(), event.Message.(*linebot.TextMessage).Text); err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+		}
+
+		mes := linebot.NewTextMessage(messageSuccess)
+		if _, err := bot.ReplyMessage(event.ReplyToken, mes).Do(); err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+		}
 	}
 
 	c.Status(http.StatusOK)

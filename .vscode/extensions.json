@@ -1,7 +1,6 @@
 {
     "recommendations": [
         "googlecloudtools.cloudcode",
-        "golang.go",
-        "TabNine.tabnine-vscode"
+        "golang.go"
     ] 
 }
