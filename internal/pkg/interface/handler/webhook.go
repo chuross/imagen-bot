@@ -43,18 +43,20 @@ func (h WebhookHandler) Hook(c *gin.Context) {
 			continue
 		}
 
-		if event.Message.Type() != linebot.MessageTypeText {
-			fmt.Printf("unexpected message type: type=%v", event.Message.Type())
-			continue
-		}
+		switch event.Message.(type) {
+		case *linebot.TextMessage:
+			text := event.Message.(*linebot.TextMessage).Text
+			fmt.Printf("generate image: text=%v", text)
+			if err := h.imageUseCase.Generate(c.Request.Context(), text); err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+			}
 
-		if err := h.imageUseCase.Generate(c.Request.Context(), event.Message.(*linebot.TextMessage).Text); err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-		}
-
-		mes := linebot.NewTextMessage(messageSuccess)
-		if _, err := bot.ReplyMessage(event.ReplyToken, mes).Do(); err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
+			mes := linebot.NewTextMessage(messageSuccess)
+			if _, err := bot.ReplyMessage(event.ReplyToken, mes).Do(); err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+			}
+		default:
+			fmt.Printf("unexpected message type: type=%v", event.Message)
 		}
 	}
 
