@@ -17,7 +17,7 @@ func newImageService() domain.ImageService {
 type imageService struct {
 }
 
-func (s imageService) Generate(ctx context.Context, prompt string) error {
+func (s imageService) Generate(ctx context.Context, prompt string, extra map[string]interface{}) error {
 	translateClient, err := translate.NewClient(ctx)
 	if err != nil {
 		return fmt.Errorf("Generate: %w", err)
@@ -33,7 +33,7 @@ func (s imageService) Generate(ctx context.Context, prompt string) error {
 	}
 
 	pubsubClient := pubsub.NewClient()
-	if err = pubsubClient.PublishGenerateImage(ctx, tls[0].Text); err != nil {
+	if err = pubsubClient.PublishGenerateImage(ctx, tls[0].Text, extra); err != nil {
 		return fmt.Errorf("Generate: %w", err)
 	}
 

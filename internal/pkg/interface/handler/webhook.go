@@ -49,8 +49,10 @@ func (h WebhookHandler) Hook(c *gin.Context) {
 		switch event.Message.(type) {
 		case *linebot.TextMessage:
 			text := event.Message.(*linebot.TextMessage).Text
-			log.Printf("generate image: text=%v", text)
-			if err := h.imageUseCase.Generate(c.Request.Context(), text); err != nil {
+			sendingTargetID := event.Source.UserID
+
+			log.Printf("generate image: text=%v, sendingTargetID=%v", text, sendingTargetID)
+			if err := h.imageUseCase.Generate(c.Request.Context(), text, sendingTargetID); err != nil {
 				c.AbortWithError(http.StatusInternalServerError, err)
 				return
 			}

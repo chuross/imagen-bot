@@ -14,7 +14,7 @@ const (
 )
 
 type Client interface {
-	PublishGenerateImage(ctx context.Context, prompt string) error
+	PublishGenerateImage(ctx context.Context, prompt string, extra map[string]interface{}) error
 }
 
 func NewClient() Client {
@@ -24,7 +24,7 @@ func NewClient() Client {
 type client struct {
 }
 
-func (c client) PublishGenerateImage(ctx context.Context, prompt string) error {
+func (c client) PublishGenerateImage(ctx context.Context, prompt string, extra map[string]interface{}) error {
 	env := environment.MustGet(ctx)
 
 	client, err := pubsub.NewClient(ctx, env.GOOGLE_CLOUD_PROJECT_ID)
@@ -34,8 +34,9 @@ func (c client) PublishGenerateImage(ctx context.Context, prompt string) error {
 
 	defer client.Close()
 
-	data, err := json.Marshal(map[string]string{
+	data, err := json.Marshal(map[string]interface{}{
 		"prompt": prompt,
+		"extra":  extra,
 	})
 
 	if err != nil {
