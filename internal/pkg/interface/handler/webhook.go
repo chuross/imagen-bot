@@ -31,11 +31,13 @@ func (h WebhookHandler) Hook(c *gin.Context) {
 	bot, err := linebot.New(e.LINE_BOT.SECRET_TOKEN, e.LINE_BOT.CHANNEL_ACCESS_TOKEN)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
+		return
 	}
 
 	events, err := bot.ParseRequest(c.Request)
 	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
+		return
 	}
 
 	for _, event := range events {
@@ -50,11 +52,13 @@ func (h WebhookHandler) Hook(c *gin.Context) {
 			log.Printf("generate image: text=%v", text)
 			if err := h.imageUseCase.Generate(c.Request.Context(), text); err != nil {
 				c.AbortWithError(http.StatusInternalServerError, err)
+				return
 			}
 
 			mes := linebot.NewTextMessage(messageSuccess)
 			if _, err := bot.ReplyMessage(event.ReplyToken, mes).Do(); err != nil {
 				c.AbortWithError(http.StatusInternalServerError, err)
+				return
 			}
 		default:
 			fmt.Printf("unexpected message type: type=%v", event.Message)

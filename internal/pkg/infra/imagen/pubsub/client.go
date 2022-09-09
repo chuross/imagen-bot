@@ -29,7 +29,7 @@ func (c client) PublishGenerateImage(ctx context.Context, prompt string) error {
 
 	client, err := pubsub.NewClient(ctx, env.GOOGLE_CLOUD_PROJECT_ID)
 	if err != nil {
-		return fmt.Errorf("PublishGenerateImage: %w", err)
+		return fmt.Errorf("PublishGenerateImage: projectID=%v: %w", env.GOOGLE_CLOUD_PROJECT_ID, err)
 	}
 
 	defer client.Close()
@@ -48,7 +48,7 @@ func (c client) PublishGenerateImage(ctx context.Context, prompt string) error {
 	})
 
 	if _, err := res.Get(ctx); err != nil {
-		return fmt.Errorf("PublishGenerateImage: %w", err)
+		return fmt.Errorf("PublishGenerateImage: topic=%v: %w", t.String(), err)
 	}
 
 	return nil
