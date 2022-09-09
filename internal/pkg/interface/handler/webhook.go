@@ -38,13 +38,13 @@ func (h WebhookHandler) Hook(c *gin.Context) {
 	}
 
 	for _, event := range events {
-		fmt.Printf("event received: type=%v, messageType=%v", event.Type, event.Message.Type())
-
 		if event.Type != linebot.EventTypeMessage {
+			fmt.Printf("unexpected event type: type=%v", event.Type)
 			continue
 		}
 
 		if event.Message.Type() != linebot.MessageTypeText {
+			fmt.Printf("unexpected message type: type=%v", event.Message.Type())
 			continue
 		}
 
