@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"imagen/internal/pkg/infra/environment"
 	"imagen/internal/pkg/usecase/webhook"
 	"net/http"
@@ -37,6 +38,8 @@ func (h WebhookHandler) Hook(c *gin.Context) {
 	}
 
 	for _, event := range events {
+		fmt.Printf("event received: type=%v, messageType=%v", event.Type, event.Message.Type())
+
 		if event.Type != linebot.EventTypeMessage {
 			continue
 		}
