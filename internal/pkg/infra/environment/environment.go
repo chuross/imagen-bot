@@ -14,8 +14,8 @@ type Env struct {
 	GOOGLE_CLOUD_PROJECT_ID string
 
 	LINE_BOT struct {
-		CHANNEL_ACCESS_TOKEN string `env:"CHANNEL_ACCESS_TOKEN,required=true"`
-		SECRET_TOKEN         string `env:"SECRET_TOKEN,reuqired=true"`
+		CHANNEL_ACCESS_TOKEN string `env:"LINE_BOT_CHANNEL_ACCESS_TOKEN,required=true"`
+		SECRET_TOKEN         string `env:"LINE_BOT_SECRET_TOKEN,reuqired=true"`
 	}
 }
 
