@@ -1,18 +1,16 @@
-package domains
+package service
 
 import (
 	"context"
 	"fmt"
+	"imagen/internal/pkg/domain"
 	"imagen/internal/pkg/infra/imagen/pubsub"
 
 	"cloud.google.com/go/translate"
 	"golang.org/x/text/language"
 )
 
-type ImageService interface {
-}
-
-func NewImageService(ctx context.Context) ImageService {
+func newImageService(ctx context.Context) domain.ImageService {
 	return &imageService{
 		pubsubClient: pubsub.NewClient(ctx),
 	}

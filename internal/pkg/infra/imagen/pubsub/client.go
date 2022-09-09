@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	topicGenerateImage = "generate_image"
+	topicGenerateImage = "generate-image"
 )
 
 type Client interface {
