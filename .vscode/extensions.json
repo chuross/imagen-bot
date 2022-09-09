@@ -1,7 +1,6 @@
 {
     "recommendations": [
         "googlecloudtools.cloudcode",
-        "ms-azuretools.vscode-docker",
         "golang.go",
         "TabNine.tabnine-vscode"
     ] 

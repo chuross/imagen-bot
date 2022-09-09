@@ -13,38 +13,39 @@ const (
 )
 
 type Client interface {
+	PublishGenerateImage(ctx context.Context, prompt string) error
 }
 
 func NewClient(ctx context.Context) Client {
-	c, err := pubsub.NewClient(ctx, "project-id")
-	if err != nil {
-		panic(fmt.Errorf("pubsub initialize failed: %w", err).Error())
-	}
-	return &client{
-		client: c,
-	}
+	return &client{}
 }
 
 type client struct {
-	client *pubsub.Client
 }
 
 func (c client) PublishGenerateImage(ctx context.Context, prompt string) error {
+	client, err := pubsub.NewClient(ctx, "project-id")
+	if err != nil {
+		return fmt.Errorf("PublishGenerateImage: %w", err)
+	}
+
+	defer client.Close()
+
 	data, err := json.Marshal(map[string]string{
 		"prompt": prompt,
 	})
 
 	if err != nil {
-		return fmt.Errorf("publish generate image failed: %w", err)
+		return fmt.Errorf("PublishGenerateImage: %w", err)
 	}
 
-	t := c.client.Topic(topicGenerateImage)
+	t := client.Topic(topicGenerateImage)
 	res := t.Publish(ctx, &pubsub.Message{
 		Data: data,
 	})
 
 	if _, err := res.Get(ctx); err != nil {
-		return fmt.Errorf("publish generate image failed: %w", err)
+		return fmt.Errorf("PublishGenerateImage: %w", err)
 	}
 
 	return nil

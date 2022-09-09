@@ -2,7 +2,6 @@ package environment
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/Netflix/go-env"
 )
@@ -31,7 +30,7 @@ func MustGet(ctx context.Context) Env {
 func With(ctx context.Context) (context.Context, error) {
 	var e Env
 	if _, err := env.UnmarshalFromEnviron(&e); err != nil {
-		return ctx, fmt.Errorf("unmarshal environment failed: %w", err)
+		return ctx, err
 	} else {
 		return context.WithValue(ctx, envKeyMain, &e), nil
 	}

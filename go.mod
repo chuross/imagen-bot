@@ -14,6 +14,7 @@ require (
 	cloud.google.com/go/compute v1.7.0 // indirect
 	cloud.google.com/go/iam v0.3.0 // indirect
 	cloud.google.com/go/pubsub v1.25.1 // indirect
+	cloud.google.com/go/translate v1.2.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
@@ -22,6 +23,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20200121045136-8c9f03a8e57e // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-cmp v0.5.8 // indirect
+	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.1.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.1 // indirect
