@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"imagen/internal/pkg/infra/environment"
 
 	"cloud.google.com/go/pubsub"
 )
@@ -24,7 +25,9 @@ type client struct {
 }
 
 func (c client) PublishGenerateImage(ctx context.Context, prompt string) error {
-	client, err := pubsub.NewClient(ctx, "project-id")
+	env := environment.MustGet(ctx)
+
+	client, err := pubsub.NewClient(ctx, env.GOOGLE_CLOUD_PROJECT_ID)
 	if err != nil {
 		return fmt.Errorf("PublishGenerateImage: %w", err)
 	}
