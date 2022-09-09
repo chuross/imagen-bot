@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"imagen/internal/pkg/infra/environment"
 	"imagen/internal/pkg/usecase/webhook"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -39,14 +40,14 @@ func (h WebhookHandler) Hook(c *gin.Context) {
 
 	for _, event := range events {
 		if event.Type != linebot.EventTypeMessage {
-			fmt.Printf("unexpected event type: type=%v", event.Type)
+			log.Printf("unexpected event type: type=%v", event.Type)
 			continue
 		}
 
 		switch event.Message.(type) {
 		case *linebot.TextMessage:
 			text := event.Message.(*linebot.TextMessage).Text
-			fmt.Printf("generate image: text=%v", text)
+			log.Printf("generate image: text=%v", text)
 			if err := h.imageUseCase.Generate(c.Request.Context(), text); err != nil {
 				c.AbortWithError(http.StatusInternalServerError, err)
 			}
