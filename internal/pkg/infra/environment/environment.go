@@ -12,6 +12,8 @@ type envKey struct{}
 var envKeyMain = envKey{}
 
 type Env struct {
+	GOOGLE_CLOUD_PROJECT_ID string
+
 	LINE_BOT struct {
 		CHANNEL_ACCESS_TOKEN string `env:"CHANNEL_ACCESS_TOKEN,required=true"`
 		SECRET_TOKEN         string `env:"SECRET_TOKEN,reuqired=true"`
