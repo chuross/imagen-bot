@@ -16,9 +16,10 @@ func newImageUseCase(services service.Services) ImageUseCase {
 	}
 }
 
-func (u ImageUseCase) Generate(ctx context.Context, text string, sendingTargetID string) error {
+func (u ImageUseCase) Generate(ctx context.Context, text, sendingTargetID, replyToken string) error {
 	return u.imageService.Generate(ctx, text, map[string]interface{}{
-		"via":            "line-bot",
-		"send_target_id": sendingTargetID,
+		"via":               "line-bot",
+		"sending_target_id": sendingTargetID,
+		"reply_token":       replyToken,
 	})
 }

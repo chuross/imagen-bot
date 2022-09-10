@@ -52,13 +52,7 @@ func (h WebhookHandler) Hook(c *gin.Context) {
 			sendingTargetID := event.Source.UserID
 
 			log.Printf("generate image: text=%v, sendingTargetID=%v", text, sendingTargetID)
-			if err := h.imageUseCase.Generate(c.Request.Context(), text, sendingTargetID); err != nil {
-				c.AbortWithError(http.StatusInternalServerError, err)
-				return
-			}
-
-			mes := linebot.NewTextMessage(messageSuccess)
-			if _, err := bot.ReplyMessage(event.ReplyToken, mes).Do(); err != nil {
+			if err := h.imageUseCase.Generate(c.Request.Context(), text, sendingTargetID, event.ReplyToken); err != nil {
 				c.AbortWithError(http.StatusInternalServerError, err)
 				return
 			}
