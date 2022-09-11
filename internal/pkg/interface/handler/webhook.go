@@ -60,6 +60,5 @@ func (h WebhookHandler) HookByDiscord(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"type": discordgo.InteractionResponsePong,
 		})
-		return
 	}
 }

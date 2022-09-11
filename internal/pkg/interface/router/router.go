@@ -10,6 +10,7 @@ import (
 
 func Setup(r *gin.Engine, webhookUseCases *webhook.UseCases) {
 	root := r.Use(gin.Recovery()).
+		Use(gin.Logger()).
 		Use(middleware.WithEnv)
 
 	{
