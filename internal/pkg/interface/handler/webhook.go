@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fmt"
 	"imagen/internal/pkg/infra/environment"
 	"imagen/internal/pkg/usecase/webhook"
 	"log"
@@ -52,7 +53,7 @@ func (h WebhookHandler) HookByDiscord(c *gin.Context) {
 	intaract := discordgo.Interaction{}
 
 	if err := c.BindJSON(&intaract); err != nil {
-		c.AbortWithError(http.StatusBadRequest, err)
+		c.AbortWithError(http.StatusBadRequest, fmt.Errorf("HookByDiscord: %w", err))
 		return
 	}
 
