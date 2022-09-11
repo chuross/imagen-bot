@@ -8,8 +8,8 @@ type Services struct {
 	Image domain.ImageService
 }
 
-func NewServices() Services {
-	return Services{
+func NewServices() *Services {
+	return &Services{
 		Image: newImageService(),
 	}
 }

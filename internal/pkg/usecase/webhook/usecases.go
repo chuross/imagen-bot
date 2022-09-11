@@ -6,8 +6,8 @@ type UseCases struct {
 	Image ImageUseCase
 }
 
-func NewWebhookUseCases(services service.Services) UseCases {
-	return UseCases{
+func NewWebhookUseCases(services service.Services) *UseCases {
+	return &UseCases{
 		Image: newImageUseCase(services),
 	}
 }

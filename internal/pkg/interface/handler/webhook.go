@@ -17,8 +17,8 @@ type WebhookHandler struct {
 	imageUseCase webhook.ImageUseCase
 }
 
-func NewWebhookHandler(usecases webhook.UseCases) WebhookHandler {
-	return WebhookHandler{
+func NewWebhookHandler(usecases webhook.UseCases) *WebhookHandler {
+	return &WebhookHandler{
 		imageUseCase: usecases.Image,
 	}
 }

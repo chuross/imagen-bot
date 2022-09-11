@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"imagen/internal/pkg/domain"
+	"imagen/internal/pkg/infra/environment"
 	"imagen/internal/pkg/infra/imagen/pubsub"
 
 	"cloud.google.com/go/translate"
@@ -11,7 +12,7 @@ import (
 )
 
 func newImageService() domain.ImageService {
-	return imageService{}
+	return &imageService{}
 }
 
 type imageService struct {
@@ -34,7 +35,9 @@ func (s imageService) Generate(ctx context.Context, command domain.ImageGenerate
 
 	command.Prompt = tls[0].Text
 
-	pubsubClient := pubsub.NewClient()
+	env := environment.MustGet(ctx)
+
+	pubsubClient := pubsub.NewClient(env.GOOGLE_CLOUD_PROJECT_ID)
 	if err = pubsubClient.PublishGenerateImage(ctx, command, extra); err != nil {
 		return fmt.Errorf("Generate: %w", err)
 	}

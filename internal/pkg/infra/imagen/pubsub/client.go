@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"imagen/internal/pkg/domain"
-	"imagen/internal/pkg/infra/environment"
 
 	"cloud.google.com/go/pubsub"
 )
@@ -14,30 +13,27 @@ const (
 	topicGenerateImage = "generate-image"
 )
 
-type Client interface {
-	PublishGenerateImage(ctx context.Context, command domain.ImageGenerateComamnd, extra map[string]interface{}) error
+type Client struct {
+	projectID string
 }
 
-func NewClient() Client {
-	return client{}
+func NewClient(projectID string) *Client {
+	return &Client{
+		projectID: projectID,
+	}
 }
 
-type client struct {
-}
-
-func (c client) PublishGenerateImage(ctx context.Context, command domain.ImageGenerateComamnd, extra map[string]interface{}) error {
-	env := environment.MustGet(ctx)
-
-	client, err := pubsub.NewClient(ctx, env.GOOGLE_CLOUD_PROJECT_ID)
+func (c Client) PublishGenerateImage(ctx context.Context, command domain.ImageGenerateComamnd, extra map[string]interface{}) error {
+	client, err := pubsub.NewClient(ctx, c.projectID)
 	if err != nil {
-		return fmt.Errorf("PublishGenerateImage: projectID=%v: %w", env.GOOGLE_CLOUD_PROJECT_ID, err)
+		return fmt.Errorf("PublishGenerateImage: projectID=%v: %w", c.projectID, err)
 	}
 
 	defer client.Close()
 
 	data, err := json.Marshal(map[string]interface{}{
 		"prompt": command.Prompt,
-		"width": command.Width,
+		"width":  command.Width,
 		"height": command.Height,
 		"extra":  extra,
 	})
