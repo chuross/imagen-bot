@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"imagen/internal/pkg/infra/environment"
+	"log"
 	"net/http"
 	"sync"
 
@@ -13,6 +14,7 @@ import (
 )
 
 func VerifyDiscordSignature(c *gin.Context) {
+	log.Println("VerifyDiscordSignature: start")
 	env := environment.MustGet(c.Request.Context())
 
 	pubkey, err := hex.DecodeString(env.DISCORD.PUBLIC_KEY)
@@ -22,9 +24,11 @@ func VerifyDiscordSignature(c *gin.Context) {
 	}
 
 	if !discordgo.VerifyInteraction(c.Request, ed25519.PublicKey(pubkey)) {
+		log.Println("VerifyDiscordSignature: end: 401")
 		c.Status(http.StatusUnauthorized)
 		return
 	}
+	log.Println("VerifyDiscordSignature: end: success")
 }
 
 func RegisterInteractionCommand(c *gin.Context) {
