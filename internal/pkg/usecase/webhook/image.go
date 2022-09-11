@@ -12,6 +12,7 @@ import (
 	"github.com/jessevdk/go-flags"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/mattn/go-shellwords"
+	"github.com/samber/lo"
 )
 
 type ImageGenerateOption struct {
@@ -49,7 +50,10 @@ func (u ImageUseCase) GenerateByLine(ctx context.Context, events []*linebot.Even
 				return fmt.Errorf("GenerateByLine: %w", err)
 			}
 
-			text := ""
+			text := strings.Join(lo.Filter(args, func(arg string, _ int) bool {
+				return !strings.HasPrefix(arg, "-")
+			}), " ")
+
 			width, height, err := u.resolveSize(opt)
 			if err != nil {
 				return fmt.Errorf("GenerateByLine: %w", err)
