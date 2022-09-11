@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"imagen/internal/pkg/domain"
 	"imagen/internal/pkg/infra/environment"
 
 	"cloud.google.com/go/pubsub"
@@ -14,7 +15,7 @@ const (
 )
 
 type Client interface {
-	PublishGenerateImage(ctx context.Context, prompt string, extra map[string]interface{}) error
+	PublishGenerateImage(ctx context.Context, command domain.ImageGenerateComamnd, extra map[string]interface{}) error
 }
 
 func NewClient() Client {
@@ -24,7 +25,7 @@ func NewClient() Client {
 type client struct {
 }
 
-func (c client) PublishGenerateImage(ctx context.Context, prompt string, extra map[string]interface{}) error {
+func (c client) PublishGenerateImage(ctx context.Context, command domain.ImageGenerateComamnd, extra map[string]interface{}) error {
 	env := environment.MustGet(ctx)
 
 	client, err := pubsub.NewClient(ctx, env.GOOGLE_CLOUD_PROJECT_ID)
@@ -35,7 +36,9 @@ func (c client) PublishGenerateImage(ctx context.Context, prompt string, extra m
 	defer client.Close()
 
 	data, err := json.Marshal(map[string]interface{}{
-		"prompt": prompt,
+		"prompt": command.Prompt,
+		"width": command.Width,
+		"height": command.Height,
 		"extra":  extra,
 	})
 

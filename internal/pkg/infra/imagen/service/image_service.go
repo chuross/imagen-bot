@@ -17,14 +17,14 @@ func newImageService() domain.ImageService {
 type imageService struct {
 }
 
-func (s imageService) Generate(ctx context.Context, prompt string, extra map[string]interface{}) error {
+func (s imageService) Generate(ctx context.Context, command domain.ImageGenerateComamnd, extra map[string]interface{}) error {
 	translateClient, err := translate.NewClient(ctx)
 	if err != nil {
 		return fmt.Errorf("Generate: %w", err)
 	}
 	defer translateClient.Close()
 
-	tls, err := translateClient.Translate(ctx, []string{prompt}, language.English, &translate.Options{
+	tls, err := translateClient.Translate(ctx, []string{command.Prompt}, language.English, &translate.Options{
 		Source: language.Japanese,
 	})
 
@@ -32,8 +32,10 @@ func (s imageService) Generate(ctx context.Context, prompt string, extra map[str
 		return fmt.Errorf("Generate: %w", err)
 	}
 
+	command.Prompt = tls[0].Text
+
 	pubsubClient := pubsub.NewClient()
-	if err = pubsubClient.PublishGenerateImage(ctx, tls[0].Text, extra); err != nil {
+	if err = pubsubClient.PublishGenerateImage(ctx, command, extra); err != nil {
 		return fmt.Errorf("Generate: %w", err)
 	}
 
