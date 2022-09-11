@@ -22,7 +22,7 @@ func VerifyDiscordSignature(c *gin.Context) {
 
 func RegisterInteractionCommand(c *gin.Context) {
 	env := environment.MustGet(c.Request.Context())
-	if client, err := discordgo.New(fmt.Sprintf("Bot %s", env.DISCORD.BOT_TOKEN)); err != nil {
+	if _, err := discordgo.New(fmt.Sprintf("Bot %s", env.DISCORD.BOT_TOKEN)); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
 	} else {
