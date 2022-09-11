@@ -14,6 +14,6 @@ func Setup(r *gin.Engine, webhookUseCases webhook.UseCases) {
 
 	{
 		handler := handler.NewWebhookHandler(webhookUseCases)
-		root.POST("/hook", handler.Hook)
+		root.POST("/hooks/line", handler.Hook)
 	}
 }
