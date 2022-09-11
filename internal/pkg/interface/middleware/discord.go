@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"crypto/ed25519"
+	"encoding/hex"
 	"fmt"
 	"imagen/internal/pkg/infra/environment"
 	"net/http"
@@ -14,7 +15,13 @@ import (
 func VerifyDiscordSignature(c *gin.Context) {
 	env := environment.MustGet(c.Request.Context())
 
-	if !discordgo.VerifyInteraction(c.Request, ed25519.PublicKey(env.DISCORD.PUBLIC_KEY)) {
+	pubkey, err := hex.DecodeString(env.DISCORD.PUBLIC_KEY)
+	if err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	if !discordgo.VerifyInteraction(c.Request, ed25519.PublicKey(pubkey)) {
 		c.Status(http.StatusUnauthorized)
 		return
 	}
@@ -22,6 +29,7 @@ func VerifyDiscordSignature(c *gin.Context) {
 
 func RegisterInteractionCommand(c *gin.Context) {
 	env := environment.MustGet(c.Request.Context())
+
 	if _, err := discordgo.New(fmt.Sprintf("Bot %s", env.DISCORD.BOT_TOKEN)); err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
