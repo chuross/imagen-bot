@@ -1,10 +1,8 @@
 package handler
 
 import (
-	"fmt"
 	"imagen/internal/pkg/infra/environment"
 	"imagen/internal/pkg/usecase/webhook"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -40,24 +38,9 @@ func (h WebhookHandler) HookByLine(c *gin.Context) {
 		return
 	}
 
-	for _, event := range events {
-		if event.Type != linebot.EventTypeMessage {
-			log.Printf("unexpected event type: type=%v", event.Type)
-			continue
-		}
-
-		switch event.Message.(type) {
-		case *linebot.TextMessage:
-			text := event.Message.(*linebot.TextMessage).Text
-			sendingTargetID := event.Source.UserID
-
-			if err := h.imageUseCase.Generate(c.Request.Context(), text, sendingTargetID, event.ReplyToken); err != nil {
-				c.AbortWithError(http.StatusInternalServerError, err)
-				return
-			}
-		default:
-			fmt.Printf("unexpected message type: type=%v", event.Message)
-		}
+	if err := h.imageUseCase.GenerateByLine(c.Request.Context(), events); err != nil {
+		c.AbortWithError(http.StatusInternalServerError, err)
+		return
 	}
 
 	c.Status(http.StatusOK)
