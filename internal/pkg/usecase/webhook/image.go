@@ -9,10 +9,14 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/jessevdk/go-flags"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/mattn/go-shellwords"
-	"github.com/samber/lo"
 )
+
+type ImageGenerateOption struct {
+	Size string `short:"s" long:"size" description:"widthxheight (ex)256x256"`
+}
 
 type ImageUseCase struct {
 	imageService domain.ImageService
@@ -40,8 +44,13 @@ func (u ImageUseCase) GenerateByLine(ctx context.Context, events []*linebot.Even
 				return fmt.Errorf("GenerateByLine: %w", err)
 			}
 
-			text := args[0]
-			width, height, err := u.resolveSize(args)
+			var opt ImageGenerateOption
+			if _, err := flags.ParseArgs(&opt, args); err != nil {
+				return fmt.Errorf("GenerateByLine: %w", err)
+			}
+
+			text := ""
+			width, height, err := u.resolveSize(opt)
 			if err != nil {
 				return fmt.Errorf("GenerateByLine: %w", err)
 			}
@@ -67,16 +76,12 @@ func (u ImageUseCase) GenerateByLine(ctx context.Context, events []*linebot.Even
 	return nil
 }
 
-func (u ImageUseCase) resolveSize(args []string) (int, int, error) {
-	sizeOpt, found := lo.Find(args, func(arg string) bool {
-		return strings.HasPrefix(arg, "-s")
-	})
-
-	if !found {
+func (u ImageUseCase) resolveSize(opt ImageGenerateOption) (int, int, error) {
+	if opt.Size == "" {
 		return 0, 0, nil
 	}
 
-	size := strings.Split(strings.TrimSpace(sizeOpt[2:]), "x")
+	size := strings.Split(strings.TrimSpace(opt.Size), "x")
 
 	width, err := strconv.Atoi(size[0])
 	if err != nil {
