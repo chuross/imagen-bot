@@ -20,6 +20,7 @@ type Env struct {
 
 	DISCORD struct {
 		PUBLIC_KEY string `env:"DISCORD_PUBLIC_KEY,required=true"`
+		BOT_TOKEN  string `env:"DISCORD_BOT_TOKEN,required=true"`
 	}
 }
 

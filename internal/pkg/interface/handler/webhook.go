@@ -5,6 +5,7 @@ import (
 	"imagen/internal/pkg/usecase/webhook"
 	"net/http"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/gin-gonic/gin"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
@@ -47,5 +48,18 @@ func (h WebhookHandler) HookByLine(c *gin.Context) {
 }
 
 func (h WebhookHandler) HookByDiscord(c *gin.Context) {
-	c.Status(http.StatusOK)
+	intaract := discordgo.Interaction{}
+
+	if err := c.BindJSON(&intaract); err != nil {
+		c.AbortWithError(http.StatusBadRequest, err)
+		return
+	}
+
+	switch intaract.Type {
+	default:
+		c.JSON(http.StatusOK, gin.H{
+			"type": discordgo.InteractionResponsePong,
+		})
+		return
+	}
 }
