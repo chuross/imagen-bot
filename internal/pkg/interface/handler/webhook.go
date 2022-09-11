@@ -25,7 +25,7 @@ func NewWebhookHandler(usecases webhook.UseCases) WebhookHandler {
 	}
 }
 
-func (h WebhookHandler) Hook(c *gin.Context) {
+func (h WebhookHandler) HookByLine(c *gin.Context) {
 	e := environment.MustGet(c.Request.Context())
 
 	bot, err := linebot.New(e.LINE_BOT.SECRET_TOKEN, e.LINE_BOT.CHANNEL_ACCESS_TOKEN)
@@ -51,7 +51,6 @@ func (h WebhookHandler) Hook(c *gin.Context) {
 			text := event.Message.(*linebot.TextMessage).Text
 			sendingTargetID := event.Source.UserID
 
-			log.Printf("generate image: text=%v, sendingTargetID=%v", text, sendingTargetID)
 			if err := h.imageUseCase.Generate(c.Request.Context(), text, sendingTargetID, event.ReplyToken); err != nil {
 				c.AbortWithError(http.StatusInternalServerError, err)
 				return
