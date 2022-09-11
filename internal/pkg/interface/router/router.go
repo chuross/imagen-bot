@@ -9,15 +9,16 @@ import (
 )
 
 func Setup(r *gin.Engine, webhookUseCases *webhook.UseCases) {
-	root := r.Use(gin.Recovery()).
-		Use(gin.Logger()).
+	root := r.Group("/")
+	root.Use(gin.Recovery()).
 		Use(middleware.WithEnv)
 
 	{
 		handler := handler.NewWebhookHandler(webhookUseCases)
 		root.POST("/hooks/line", handler.HookByLine)
 
-		discord := root.Use(middleware.VerifyDiscordSignature)
+		discord := root.Group("")
+		discord.Use(middleware.VerifyDiscordSignature)
 		{
 			discord.POST("/hooks/discord", handler.HookByDiscord)
 		}
