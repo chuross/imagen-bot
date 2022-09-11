@@ -3,6 +3,7 @@ package handler
 import (
 	"imagen/internal/pkg/infra/environment"
 	"imagen/internal/pkg/usecase/webhook"
+	"log"
 	"net/http"
 
 	"github.com/bwmarrin/discordgo"
@@ -54,6 +55,8 @@ func (h WebhookHandler) HookByDiscord(c *gin.Context) {
 		c.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
+
+	log.Printf("HookByDiscord: receive interaction: type=%v", intaract.Type)
 
 	switch intaract.Type {
 	default:
