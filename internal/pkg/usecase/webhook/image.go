@@ -12,7 +12,6 @@ import (
 	"github.com/jessevdk/go-flags"
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/mattn/go-shellwords"
-	"github.com/samber/lo"
 )
 
 type ImageGenerateOption struct {
@@ -40,7 +39,8 @@ func (u ImageUseCase) GenerateByLine(ctx context.Context, events []*linebot.Even
 		case *linebot.TextMessage:
 			sendingTargetID := event.Source.UserID
 
-			args, err := shellwords.Parse(event.Message.(*linebot.TextMessage).Text)
+			text := event.Message.(*linebot.TextMessage).Text
+			args, err := shellwords.Parse(text)
 			if err != nil {
 				return fmt.Errorf("GenerateByLine: %w", err)
 			}
@@ -50,9 +50,7 @@ func (u ImageUseCase) GenerateByLine(ctx context.Context, events []*linebot.Even
 				return fmt.Errorf("GenerateByLine: %w", err)
 			}
 
-			text := strings.Join(lo.Filter(args, func(arg string, _ int) bool {
-				return !strings.HasPrefix(arg, "-")
-			}), " ")
+			text = strings.Split(text, "-")[0]
 
 			width, height, err := u.resolveSize(opt)
 			if err != nil {
