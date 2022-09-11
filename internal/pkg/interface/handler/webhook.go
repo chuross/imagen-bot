@@ -14,10 +14,10 @@ const (
 )
 
 type WebhookHandler struct {
-	imageUseCase webhook.ImageUseCase
+	imageUseCase *webhook.ImageUseCase
 }
 
-func NewWebhookHandler(usecases webhook.UseCases) *WebhookHandler {
+func NewWebhookHandler(usecases *webhook.UseCases) *WebhookHandler {
 	return &WebhookHandler{
 		imageUseCase: usecases.Image,
 	}

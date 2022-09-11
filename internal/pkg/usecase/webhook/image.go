@@ -22,7 +22,7 @@ type ImageUseCase struct {
 	imageService domain.ImageService
 }
 
-func newImageUseCase(services service.Services) *ImageUseCase {
+func newImageUseCase(services *service.Services) *ImageUseCase {
 	return &ImageUseCase{
 		imageService: services.Image,
 	}

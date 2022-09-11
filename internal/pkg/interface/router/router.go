@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Setup(r *gin.Engine, webhookUseCases webhook.UseCases) {
+func Setup(r *gin.Engine, webhookUseCases *webhook.UseCases) {
 	root := r.Use(gin.Recovery()).
 		Use(middleware.WithEnv)
 
