@@ -45,3 +45,7 @@ func (h WebhookHandler) HookByLine(c *gin.Context) {
 
 	c.Status(http.StatusOK)
 }
+
+func (h WebhookHandler) HookByDiscord(c *gin.Context) {
+	c.Status(http.StatusOK)
+}

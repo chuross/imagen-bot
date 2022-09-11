@@ -17,6 +17,10 @@ type Env struct {
 		CHANNEL_ACCESS_TOKEN string `env:"LINE_BOT_CHANNEL_ACCESS_TOKEN,required=true"`
 		SECRET_TOKEN         string `env:"LINE_BOT_SECRET_TOKEN,reuqired=true"`
 	}
+
+	DISCORD struct {
+		PUBLIC_KEY string `env:"DISCORD_PUBLIC_KEY,required=true"`
+	}
 }
 
 func MustGet(ctx context.Context) Env {
