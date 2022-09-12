@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"imagen/internal/pkg/domain"
+	"imagen/internal/pkg/infra/imagen/discord"
 	"imagen/internal/pkg/infra/imagen/service"
 	"log"
 	"strconv"
@@ -75,7 +76,7 @@ func (u ImageUseCase) GenerateByLine(ctx context.Context, events []*linebot.Even
 func (u ImageUseCase) GenerateByDiscord(ctx context.Context, interact *discordgo.Interaction) error {
 	data := interact.ApplicationCommandData()
 
-	if data.Name != "imagen" {
+	if !strings.HasPrefix(data.Name, "imagen") {
 		return fmt.Errorf("GenerateByDiscord: unexpected command: %v", interact.ApplicationCommandData().Name)
 	}
 
@@ -90,7 +91,7 @@ func (u ImageUseCase) GenerateByDiscord(ctx context.Context, interact *discordgo
 	}
 
 	var initImageBase64 *string
-	if len(message.Attachments) > 0 {
+	if data.Name != discord.CommandImagenTxt.Name && len(message.Attachments) > 0 {
 		attachment := message.Attachments[0]
 
 		if strings.HasPrefix(attachment.ContentType, "image/") {
