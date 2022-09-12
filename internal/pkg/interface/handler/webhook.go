@@ -12,10 +12,6 @@ import (
 	"github.com/line/line-bot-sdk-go/v7/linebot"
 )
 
-const (
-	messageSuccess = "画像リクエスト受け付けました"
-)
-
 type WebhookHandler struct {
 	imageUseCase *webhook.ImageUseCase
 }
@@ -60,6 +56,11 @@ func (h WebhookHandler) HookByDiscord(c *gin.Context) {
 	log.Printf("HookByDiscord: receive interaction: type=%v", intaract.Type)
 
 	switch intaract.Type {
+	case discordgo.InteractionApplicationCommand:
+		if err := h.imageUseCase.GenerateByDiscord(c.Request.Context(), &intaract); err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
 	default:
 		c.JSON(http.StatusOK, gin.H{
 			"type": discordgo.InteractionResponsePong,
