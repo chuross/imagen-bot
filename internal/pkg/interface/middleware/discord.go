@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"imagen/internal/pkg/infra/environment"
 	"imagen/internal/pkg/infra/imagen/discord"
+	"log"
 	"net/http"
 	"sync"
 
@@ -52,5 +53,6 @@ func RegisterInteractionCommand(c *gin.Context) {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
+		log.Println("RegisterInteractionCommand: all commands updated")
 	})
 }
