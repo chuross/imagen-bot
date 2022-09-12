@@ -111,7 +111,9 @@ func (u ImageUseCase) GenerateByDiscord(ctx context.Context, interact *discordgo
 	}
 
 	if err := u.imageService.Generate(ctx, command, map[string]interface{}{
-		"via": "discord",
+		"via":               "discord",
+		"interaction_id":    interact.ID,
+		"interaction_token": interact.Token,
 	}); err != nil {
 		return fmt.Errorf("GenerateByDiscord: %w", err)
 	}
