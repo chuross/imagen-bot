@@ -21,6 +21,8 @@ type Env struct {
 	DISCORD struct {
 		PUBLIC_KEY string `env:"DISCORD_PUBLIC_KEY,required=true"`
 		BOT_TOKEN  string `env:"DISCORD_BOT_TOKEN,required=true"`
+		APP_ID     string `env:"DISCORD_APP_ID,required=true"`
+		GUILD_ID   string `env:"DISCORD_GUILD_ID,required=true"`
 	}
 }
 

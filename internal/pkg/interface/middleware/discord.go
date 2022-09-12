@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"imagen/internal/pkg/infra/environment"
+	"imagen/internal/pkg/infra/imagen/discord"
 	"net/http"
 	"sync"
 
@@ -30,12 +31,26 @@ func VerifyDiscordSignature(c *gin.Context) {
 func RegisterInteractionCommand(c *gin.Context) {
 	env := environment.MustGet(c.Request.Context())
 
-	if _, err := discordgo.New(fmt.Sprintf("Bot %s", env.DISCORD.BOT_TOKEN)); err != nil {
+	_, err := discordgo.New(fmt.Sprintf("Bot %s", env.DISCORD.BOT_TOKEN))
+	if err != nil {
 		c.AbortWithError(http.StatusInternalServerError, err)
 		return
-	} else {
-		var once sync.Once
-		once.Do(func() {
-		})
 	}
+
+	var once sync.Once
+	once.Do(func() {
+		ses, err := discordgo.New("Bot " + env.DISCORD.BOT_TOKEN)
+		if err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+
+		appID := env.DISCORD.APP_ID
+		guildID := env.DISCORD.GUILD_ID
+
+		if _, err := ses.ApplicationCommandBulkOverwrite(appID, guildID, discord.Commands); err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+	})
 }
