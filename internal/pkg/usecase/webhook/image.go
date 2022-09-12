@@ -97,7 +97,7 @@ func (u ImageUseCase) GenerateByDiscord(ctx context.Context, interact *discordgo
 			if res, err := u.client.R().Get(attachment.URL); err != nil {
 				return fmt.Errorf("GenerateByDiscord: %w", err)
 			} else {
-				d := base64.RawStdEncoding.EncodeToString(res.Body())
+				d := base64.StdEncoding.EncodeToString(res.Body())
 				initImageBase64 = &d
 			}
 		}
