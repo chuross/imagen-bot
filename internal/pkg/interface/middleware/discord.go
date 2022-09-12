@@ -22,10 +22,9 @@ func VerifyDiscordSignature(c *gin.Context) {
 	}
 
 	if !discordgo.VerifyInteraction(c.Request, ed25519.PublicKey(pubkey)) {
-		c.Status(http.StatusUnauthorized)
+		c.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
-	c.Next()
 }
 
 func RegisterInteractionCommand(c *gin.Context) {
@@ -39,5 +38,4 @@ func RegisterInteractionCommand(c *gin.Context) {
 		once.Do(func() {
 		})
 	}
-	c.Next()
 }

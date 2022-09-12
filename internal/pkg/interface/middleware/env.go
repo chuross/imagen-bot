@@ -12,6 +12,5 @@ func WithEnv(c *gin.Context) {
 		c.AbortWithError(http.StatusInternalServerError, err)
 	} else {
 		c.Request = c.Request.WithContext(ctx)
-		c.Next()
 	}
 }
