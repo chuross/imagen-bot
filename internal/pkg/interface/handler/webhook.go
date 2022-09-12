@@ -61,7 +61,9 @@ func (h WebhookHandler) HookByDiscord(c *gin.Context) {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
-		c.Status(http.StatusOK)
+		c.JSON(http.StatusOK, gin.H{
+			"type": discordgo.InteractionResponsePong,
+		})
 	default:
 		c.JSON(http.StatusOK, gin.H{
 			"type": discordgo.InteractionResponsePong,
