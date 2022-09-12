@@ -73,18 +73,25 @@ func (u ImageUseCase) GenerateByLine(ctx context.Context, events []*linebot.Even
 }
 
 func (u ImageUseCase) GenerateByDiscord(ctx context.Context, interact *discordgo.Interaction) error {
-	if interact.ApplicationCommandData().Name != "imagen" {
+	data := interact.ApplicationCommandData()
+
+	if data.Name != "imagen" {
 		return fmt.Errorf("GenerateByDiscord: unexpected command: %v", interact.ApplicationCommandData().Name)
 	}
 
-	opt, err := resolveImageGenerateOption(interact.Message.Content)
+	message, ok := data.Resolved.Messages[data.TargetID]
+	if !ok {
+		return nil
+	}
+
+	opt, err := resolveImageGenerateOption(message.Content)
 	if err != nil {
 		return fmt.Errorf("GenerateByDiscord: %w", err)
 	}
 
 	var initImageBase64 *string
-	if len(interact.Message.Attachments) > 0 {
-		attachment := interact.Message.Attachments[0]
+	if len(message.Attachments) > 0 {
+		attachment := message.Attachments[0]
 
 		if strings.HasPrefix(attachment.ContentType, "image/") {
 			if res, err := u.client.R().Get(attachment.URL); err != nil {
