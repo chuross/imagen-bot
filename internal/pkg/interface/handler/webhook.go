@@ -62,9 +62,9 @@ func (h WebhookHandler) HookByDiscord(c *gin.Context) {
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{
-			"type": discordgo.InteractionResponseChannelMessageWithSource,
+			"type": discordgo.InteractionResponseDeferredChannelMessageWithSource,
 			"data": gin.H{
-				"content": "生成リクエストを経由します...",
+				"content": "生成リクエストを発効しています...",
 			},
 		})
 	default:
