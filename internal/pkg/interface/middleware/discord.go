@@ -3,7 +3,6 @@ package middleware
 import (
 	"crypto/ed25519"
 	"encoding/hex"
-	"fmt"
 	"imagen/internal/pkg/infra/environment"
 	"imagen/internal/pkg/infra/imagen/discord"
 	"log"
@@ -31,12 +30,6 @@ func VerifyDiscordSignature(c *gin.Context) {
 
 func RegisterInteractionCommand(c *gin.Context) {
 	env := environment.MustGet(c.Request.Context())
-
-	_, err := discordgo.New(fmt.Sprintf("Bot %s", env.DISCORD.BOT_TOKEN))
-	if err != nil {
-		c.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
 
 	var once sync.Once
 	once.Do(func() {
