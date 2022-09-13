@@ -116,6 +116,7 @@ func (u ImageUseCase) GenerateByDiscord(ctx context.Context, interact *discordgo
 		"user_id":           interact.Member.User.ID,
 		"interaction_id":    interact.ID,
 		"interaction_token": interact.Token,
+		"message_url":       fmt.Sprintf("https://discord.com/channels/%s/%s/%s", interact.GuildID, interact.ChannelID, message.ID),
 	}); err != nil {
 		return fmt.Errorf("GenerateByDiscord: %w", err)
 	}
