@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"imagen/internal/pkg/domain"
 	"imagen/internal/pkg/infra/discord"
+	"imagen/internal/pkg/infra/environment"
 	"imagen/internal/pkg/infra/service"
 	"log"
 	"strconv"
@@ -93,13 +94,26 @@ func (u ImageUseCase) GenerateByDiscord(ctx context.Context, interact *discordgo
 	var initImageBase64 *string
 	if data.Name != discord.CommandImagenTxt.Name && len(message.Attachments) > 0 {
 		attachment := message.Attachments[0]
+		if initImageBase64, err = u.getAttachmentBase64(attachment); err != nil {
+			return fmt.Errorf("GenerateByDiscord: %w", err)
+		}
+	}
 
-		if strings.HasPrefix(attachment.ContentType, "image/") {
-			if res, err := u.client.R().Get(attachment.URL); err != nil {
+	if messageRef := message.MessageReference; messageRef != nil {
+		discordSes, err := discordgo.New(fmt.Sprintf("Bot %s", environment.MustGet().DISCORD.BOT_TOKEN))
+		if err != nil {
+			return fmt.Errorf("GenerateByDiscord: %w", err)
+		}
+
+		referencedMes, err := discordSes.ChannelMessage(messageRef.ChannelID, messageRef.MessageID)
+		if err != nil {
+			return fmt.Errorf("GenerateByDiscord: %w", err)
+		}
+
+		if len(referencedMes.Attachments) > 0 {
+			attachment := referencedMes.Attachments[0]
+			if initImageBase64, err = u.getAttachmentBase64(attachment); err != nil {
 				return fmt.Errorf("GenerateByDiscord: %w", err)
-			} else {
-				d := base64.StdEncoding.EncodeToString(res.Body())
-				initImageBase64 = &d
 			}
 		}
 	}
@@ -122,6 +136,19 @@ func (u ImageUseCase) GenerateByDiscord(ctx context.Context, interact *discordgo
 	}
 
 	return nil
+}
+
+func (u ImageUseCase) getAttachmentBase64(attachment *discordgo.MessageAttachment) (*string, error) {
+	if !strings.HasPrefix(attachment.ContentType, "image/") {
+		return nil, nil
+	}
+
+	if res, err := u.client.R().Get(attachment.URL); err != nil {
+		return nil, fmt.Errorf("getAttachmentBase64: %w", err)
+	} else {
+		d := base64.StdEncoding.EncodeToString(res.Body())
+		return &d, nil
+	}
 }
 
 func resolveImageGenerateOption(text string) (*imageGenerateOption, error) {

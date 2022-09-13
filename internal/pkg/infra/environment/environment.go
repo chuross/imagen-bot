@@ -1,10 +1,12 @@
 package environment
 
 import (
+	"log"
+
 	"github.com/Netflix/go-env"
 )
 
-var environ *Env
+var environ = &Env{}
 
 type Env struct {
 	GOOGLE_CLOUD_PROJECT_ID string `env:"GOOGLE_CLOUD_PROJECT_ID,required=true"`
@@ -30,6 +32,7 @@ func MustGet() *Env {
 }
 
 func Load() error {
+	log.Printf("load environment")
 	if _, err := env.UnmarshalFromEnviron(environ); err != nil {
 		return err
 	}
