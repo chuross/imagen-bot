@@ -1,6 +1,6 @@
 package webhook
 
-import "imagen/internal/pkg/infra/imagen/service"
+import "imagen/internal/pkg/infra/service"
 
 type UseCases struct {
 	Image *ImageUseCase

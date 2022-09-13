@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"imagen/internal/pkg/domain"
 	"imagen/internal/pkg/infra/environment"
-	"imagen/internal/pkg/infra/imagen/pubsub"
+	"imagen/internal/pkg/infra/pubsub"
 
 	"cloud.google.com/go/translate"
 	"golang.org/x/text/language"
@@ -35,7 +35,7 @@ func (s imageService) Generate(ctx context.Context, command domain.ImageGenerate
 
 	command.Prompt = tls[0].Text
 
-	env := environment.MustGet(ctx)
+	env := environment.MustGet()
 
 	pubsubClient := pubsub.NewClient(env.GOOGLE_CLOUD_PROJECT_ID)
 	if err = pubsubClient.PublishGenerateImage(ctx, command, extra); err != nil {

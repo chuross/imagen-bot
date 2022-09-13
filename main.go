@@ -1,7 +1,8 @@
 package main
 
 import (
-	"imagen/internal/pkg/infra/imagen/service"
+	"imagen/internal/pkg/infra/environment"
+	"imagen/internal/pkg/infra/service"
 	"imagen/internal/pkg/interface/router"
 	"imagen/internal/pkg/usecase/webhook"
 
@@ -9,6 +10,7 @@ import (
 )
 
 func main() {
+	environment.Load()
 	services := service.NewServices()
 
 	r := gin.Default()

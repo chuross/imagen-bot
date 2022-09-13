@@ -23,7 +23,7 @@ func NewWebhookHandler(usecases *webhook.UseCases) *WebhookHandler {
 }
 
 func (h WebhookHandler) HookByLine(c *gin.Context) {
-	e := environment.MustGet(c.Request.Context())
+	e := environment.MustGet()
 
 	bot, err := linebot.New(e.LINE_BOT.SECRET_TOKEN, e.LINE_BOT.CHANNEL_ACCESS_TOKEN)
 	if err != nil {

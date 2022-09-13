@@ -1,14 +1,10 @@
 package environment
 
 import (
-	"context"
-
 	"github.com/Netflix/go-env"
 )
 
-type envKey struct{}
-
-var envKeyMain = envKey{}
+var environ *Env
 
 type Env struct {
 	GOOGLE_CLOUD_PROJECT_ID string `env:"GOOGLE_CLOUD_PROJECT_ID,required=true"`
@@ -26,19 +22,16 @@ type Env struct {
 	}
 }
 
-func MustGet(ctx context.Context) Env {
-	env := ctx.Value(envKeyMain).(*Env)
-	if env == nil {
-		panic("env is not set! must call WithEnv")
+func MustGet() *Env {
+	if environ == nil {
+		panic("env is not set! must call Load")
 	}
-	return *env
+	return environ
 }
 
-func With(ctx context.Context) (context.Context, error) {
-	var e Env
-	if _, err := env.UnmarshalFromEnviron(&e); err != nil {
-		return ctx, err
-	} else {
-		return context.WithValue(ctx, envKeyMain, &e), nil
+func Load() error {
+	if _, err := env.UnmarshalFromEnviron(environ); err != nil {
+		return err
 	}
+	return nil
 }

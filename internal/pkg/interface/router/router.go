@@ -9,7 +9,7 @@ import (
 )
 
 func Setup(r *gin.Engine, webhookUseCases *webhook.UseCases) {
-	root := r.Group("/", gin.Recovery(), middleware.WithEnv)
+	root := r.Group("/", gin.Recovery())
 
 	{
 		handler := handler.NewWebhookHandler(webhookUseCases)

@@ -3,8 +3,8 @@ package middleware
 import (
 	"crypto/ed25519"
 	"encoding/hex"
+	"imagen/internal/pkg/infra/discord"
 	"imagen/internal/pkg/infra/environment"
-	"imagen/internal/pkg/infra/imagen/discord"
 	"log"
 	"net/http"
 	"sync"
@@ -14,7 +14,7 @@ import (
 )
 
 func VerifyDiscordSignature(c *gin.Context) {
-	env := environment.MustGet(c.Request.Context())
+	env := environment.MustGet()
 
 	pubkey, err := hex.DecodeString(env.DISCORD.PUBLIC_KEY)
 	if err != nil {
@@ -29,7 +29,7 @@ func VerifyDiscordSignature(c *gin.Context) {
 }
 
 func RegisterInteractionCommand(c *gin.Context) {
-	env := environment.MustGet(c.Request.Context())
+	env := environment.MustGet()
 
 	var once sync.Once
 	once.Do(func() {
