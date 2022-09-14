@@ -47,5 +47,13 @@ func RegisterInteractionCommand(c *gin.Context) {
 			return
 		}
 		log.Println("RegisterInteractionCommand: all commands updated")
+
+		for _, command := range discord.DeprecatedCommands {
+			if err := ses.ApplicationCommandDelete(appID, guildID, command.ID); err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+			log.Printf("RegisterInteractionCommand: remove command: id=%v", command.ID)
+		}
 	})
 }

@@ -32,11 +32,11 @@ func (c Client) PublishGenerateImage(ctx context.Context, command domain.ImageGe
 	defer client.Close()
 
 	data, err := json.Marshal(map[string]interface{}{
-		"prompt":     command.Prompt,
-		"width":      command.Width,
-		"height":     command.Height,
-		"init_image": command.InitImageBase64,
-		"extra":      extra,
+		"prompt":         command.Prompt,
+		"width":          command.Width,
+		"height":         command.Height,
+		"init_image_url": command.InitImageURL,
+		"extra":          extra,
 	})
 
 	if err != nil {

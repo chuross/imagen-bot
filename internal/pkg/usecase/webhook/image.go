@@ -2,19 +2,13 @@ package webhook
 
 import (
 	"context"
-	"encoding/base64"
 	"fmt"
 	"imagen/internal/pkg/domain"
-	"imagen/internal/pkg/infra/discord"
 	"imagen/internal/pkg/infra/environment"
 	"imagen/internal/pkg/infra/service"
-	"strconv"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/go-resty/resty/v2"
-	"github.com/jessevdk/go-flags"
-	"github.com/mattn/go-shellwords"
 )
 
 type imageGenerateOption struct {
@@ -25,13 +19,11 @@ type imageGenerateOption struct {
 
 type ImageUseCase struct {
 	imageService domain.ImageService
-	client       *resty.Client
 }
 
 func newImageUseCase(services *service.Services) *ImageUseCase {
 	return &ImageUseCase{
 		imageService: services.Image,
-		client:       resty.New(),
 	}
 }
 
@@ -47,18 +39,8 @@ func (u ImageUseCase) GenerateByDiscordMessageCommand(ctx context.Context, inter
 		return nil
 	}
 
-	opt, err := resolveImageGenerateOption(message.Content)
-	if err != nil {
-		return fmt.Errorf("GenerateByDiscord: %w", err)
-	}
-
-	var initImageBase64 *string
-	if data.Name != discord.CommandImagenTxt.Name && len(message.Attachments) > 0 {
-		attachment := message.Attachments[0]
-		if initImageBase64, err = u.getAttachmentBase64(attachment); err != nil {
-			return fmt.Errorf("GenerateByDiscord: %w", err)
-		}
-	}
+	var initImageURL *string
+	var maskImageURL *string
 
 	if messageRef := message.MessageReference; messageRef != nil {
 		discordSes, err := discordgo.New(fmt.Sprintf("Bot %s", environment.MustGet().DISCORD.BOT_TOKEN))
@@ -72,18 +54,24 @@ func (u ImageUseCase) GenerateByDiscordMessageCommand(ctx context.Context, inter
 		}
 
 		if len(referencedMes.Attachments) > 0 {
-			attachment := referencedMes.Attachments[0]
-			if initImageBase64, err = u.getAttachmentBase64(attachment); err != nil {
-				return fmt.Errorf("GenerateByDiscord: %w", err)
-			}
+			initImageURL = &referencedMes.Attachments[0].URL
+		}
+
+		if len(message.Attachments) > 0 {
+			maskImageURL = &message.Attachments[0].URL
+		}
+	} else {
+		if len(message.Attachments) > 0 {
+			initImageURL = &message.Attachments[0].URL
 		}
 	}
 
 	command := domain.ImageGenerateComamnd{
-		Prompt:          opt.Text,
-		Width:           opt.Width,
-		Height:          opt.Height,
-		InitImageBase64: initImageBase64,
+		Prompt:       message.Content,
+		Width:        0,
+		Height:       0,
+		InitImageURL: initImageURL,
+		MaskImageURL: maskImageURL,
 	}
 
 	if err := u.imageService.Generate(ctx, command, map[string]interface{}{
@@ -100,61 +88,6 @@ func (u ImageUseCase) GenerateByDiscordMessageCommand(ctx context.Context, inter
 	return nil
 }
 
-func (u ImageUseCase) getAttachmentBase64(attachment *discordgo.MessageAttachment) (*string, error) {
-	if !strings.HasPrefix(attachment.ContentType, "image/") {
-		return nil, nil
-	}
-
-	if res, err := u.client.R().Get(attachment.URL); err != nil {
-		return nil, fmt.Errorf("getAttachmentBase64: %w", err)
-	} else {
-		d := base64.StdEncoding.EncodeToString(res.Body())
-		return &d, nil
-	}
-}
-
-func resolveImageGenerateOption(text string) (*imageGenerateOption, error) {
-	var o struct {
-		Size string `short:"s" long:"size" description:"widthxheight (ex)256x256"`
-	}
-
-	args, err := shellwords.Parse(text)
-	if err != nil {
-		return nil, fmt.Errorf("resolveImageGenerateOption: %w", err)
-	}
-
-	if _, err := flags.ParseArgs(&o, args); err != nil {
-		return nil, fmt.Errorf("resolveImageGenerateOption: %w", err)
-	}
-
-	width, height, err := resolveImageSize(o.Size)
-	if err != nil {
-		return nil, fmt.Errorf("resolveImageGenerateOption: %w", err)
-	}
-
-	return &imageGenerateOption{
-		Text:   strings.Split(text, "-")[0],
-		Width:  width,
-		Height: height,
-	}, nil
-}
-
-func resolveImageSize(sizeStr string) (int, int, error) {
-	if sizeStr == "" {
-		return 0, 0, nil
-	}
-
-	size := strings.Split(strings.TrimSpace(sizeStr), "x")
-
-	width, err := strconv.Atoi(size[0])
-	if err != nil {
-		return 0, 0, fmt.Errorf("resolveSize: %w", err)
-	}
-
-	height, err := strconv.Atoi(size[0])
-	if err != nil {
-		return 0, 0, fmt.Errorf("resolveSize: %w", err)
-	}
-
-	return width, height, nil
+func (u ImageUseCase) GenerateByDiscordMessageComponent(ctx context.Context, interact *discordgo.Interaction) error {
+	return nil
 }
