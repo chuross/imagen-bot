@@ -61,7 +61,7 @@ func (u ImageUseCase) GenerateByDiscordMessageComponent(ctx context.Context, int
 		return fmt.Errorf("GenerateByDiscordMessageComponent: %w", err)
 	}
 
-	if err := u.generate(ctx, interact.GuildID, interact.ChannelID, message.Author.ID, interact.Token, message.Interaction.Name, message); err != nil {
+	if err := u.generate(ctx, interact.GuildID, interact.ChannelID, message.Author.ID, interact.Token, message.ReferencedMessage.Interaction.Name, message); err != nil {
 		return fmt.Errorf("GenerateByDiscordMessageComponent: %w", err)
 	}
 
