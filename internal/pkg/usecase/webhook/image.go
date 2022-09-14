@@ -71,7 +71,10 @@ func (u ImageUseCase) GenerateByDiscordMessageComponent(ctx context.Context, int
 
 func (u ImageUseCase) generate(ctx context.Context, guildID, channelID, userID, interactionToken, commandName string, message *discordgo.Message) error {
 	var initImageURL *string
-	var maskImageURL *string
+
+	if len(message.Attachments) > 0 {
+		initImageURL = &message.Attachments[0].URL
+	}
 
 	if messageRef := message.MessageReference; messageRef != nil {
 		discordSes, err := discordgo.New(fmt.Sprintf("Bot %s", environment.MustGet().DISCORD.BOT_TOKEN))
@@ -87,14 +90,6 @@ func (u ImageUseCase) generate(ctx context.Context, guildID, channelID, userID, 
 		if len(referencedMes.Attachments) > 0 {
 			initImageURL = &referencedMes.Attachments[0].URL
 		}
-
-		if len(message.Attachments) > 0 {
-			maskImageURL = &message.Attachments[0].URL
-		}
-	} else {
-		if len(message.Attachments) > 0 {
-			initImageURL = &message.Attachments[0].URL
-		}
 	}
 
 	command := domain.ImageGenerateComamnd{
@@ -102,7 +97,7 @@ func (u ImageUseCase) generate(ctx context.Context, guildID, channelID, userID, 
 		Width:        0,
 		Height:       0,
 		InitImageURL: initImageURL,
-		MaskImageURL: maskImageURL,
+		MaskImageURL: nil,
 	}
 
 	if err := u.imageService.Generate(ctx, command, map[string]interface{}{
