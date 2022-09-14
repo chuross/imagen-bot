@@ -44,7 +44,7 @@ func (u ImageUseCase) GenerateByDiscordMessageComponent(ctx context.Context, int
 	data := interact.MessageComponentData()
 	customID := data.CustomID
 
-	params := strings.Split("##", customID)
+	params := strings.Split(customID, "##")
 	if len(params) != 3 {
 		return fmt.Errorf("GenerateByDiscordMessageComponent: invalid custom id: id=%v", customID)
 	}
