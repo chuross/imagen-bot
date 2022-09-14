@@ -2,7 +2,6 @@ package webhook
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"imagen/internal/pkg/domain"
 	"imagen/internal/pkg/infra/environment"
@@ -47,7 +46,7 @@ func (u ImageUseCase) GenerateByDiscordMessageComponent(ctx context.Context, int
 
 	params := strings.Split("##", customID)
 	if len(params) != 3 {
-		return fmt.Errorf("GenerateByDiscordMessageComponent: %w", errors.New("invalid custom id"))
+		return fmt.Errorf("GenerateByDiscordMessageComponent: invalid custom id: id=%v", customID)
 	}
 
 	commandName := params[1]
