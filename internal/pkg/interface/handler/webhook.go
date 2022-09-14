@@ -40,7 +40,10 @@ func (h WebhookHandler) HookByDiscord(c *gin.Context) {
 			"type": discordgo.InteractionResponseDeferredChannelMessageWithSource,
 		})
 	case discordgo.InteractionMessageComponent:
-		// TODO
+		if err := h.imageUseCase.GenerateByDiscordMessageComponent(c.Request.Context(), &intaract); err != nil {
+			c.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
 
 		c.JSON(http.StatusOK, gin.H{
 			"type": discordgo.InteractionResponseChannelMessageWithSource,

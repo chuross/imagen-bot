@@ -2,6 +2,7 @@ package webhook
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"imagen/internal/pkg/domain"
 	"imagen/internal/pkg/infra/environment"
@@ -10,12 +11,6 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 )
-
-type imageGenerateOption struct {
-	Text   string
-	Width  int
-	Height int
-}
 
 type ImageUseCase struct {
 	imageService domain.ImageService
@@ -31,7 +26,7 @@ func (u ImageUseCase) GenerateByDiscordMessageCommand(ctx context.Context, inter
 	data := interact.ApplicationCommandData()
 
 	if !strings.HasPrefix(data.Name, "imagen") {
-		return fmt.Errorf("GenerateByDiscord: unexpected command: %v", interact.ApplicationCommandData().Name)
+		return fmt.Errorf("GenerateByDiscordMessageCommand: unexpected command: %v", interact.ApplicationCommandData().Name)
 	}
 
 	message, ok := data.Resolved.Messages[data.TargetID]
@@ -39,18 +34,55 @@ func (u ImageUseCase) GenerateByDiscordMessageCommand(ctx context.Context, inter
 		return nil
 	}
 
+	if err := u.generate(ctx, message.Author.ID, interact.Token, data.Name, message); err != nil {
+		return fmt.Errorf("GenerateByDiscordMessageCommand: %w", err)
+	}
+
+	return nil
+}
+
+func (u ImageUseCase) GenerateByDiscordMessageComponent(ctx context.Context, interact *discordgo.Interaction) error {
+	data := interact.MessageComponentData()
+	customID := data.CustomID
+
+	params := strings.Split("##", customID)
+	if len(params) != 3 {
+		return fmt.Errorf("GenerateByDiscordMessageComponent: %w", errors.New("invalid custom id"))
+	}
+
+	commandName := params[1]
+	messageID := params[2]
+
+	session, err := discordgo.New(fmt.Sprintf("Bot %s", environment.MustGet().DISCORD.BOT_TOKEN))
+	if err != nil {
+		return nil
+	}
+
+	message, err := session.ChannelMessage(interact.ChannelID, messageID)
+	if err != nil {
+		return fmt.Errorf("GenerateByDiscordMessageComponent: %w", err)
+	}
+
+	if err := u.generate(ctx, message.Author.ID, commandName, interact.Token, message); err != nil {
+		return fmt.Errorf("GenerateByDiscordMessageComponent: %w", err)
+	}
+
+	return nil
+}
+
+func (u ImageUseCase) generate(ctx context.Context, userID, interactionToken, commandName string, message *discordgo.Message) error {
 	var initImageURL *string
 	var maskImageURL *string
 
 	if messageRef := message.MessageReference; messageRef != nil {
 		discordSes, err := discordgo.New(fmt.Sprintf("Bot %s", environment.MustGet().DISCORD.BOT_TOKEN))
 		if err != nil {
-			return fmt.Errorf("GenerateByDiscord: %w", err)
+			return fmt.Errorf("generate: %w", err)
 		}
 
 		referencedMes, err := discordSes.ChannelMessage(messageRef.ChannelID, messageRef.MessageID)
 		if err != nil {
-			return fmt.Errorf("GenerateByDiscord: %w", err)
+			return fmt.Errorf("generate: %w", err)
 		}
 
 		if len(referencedMes.Attachments) > 0 {
@@ -76,18 +108,14 @@ func (u ImageUseCase) GenerateByDiscordMessageCommand(ctx context.Context, inter
 
 	if err := u.imageService.Generate(ctx, command, map[string]interface{}{
 		"via":               "discord",
-		"user_id":           interact.Member.User.ID,
-		"interaction_id":    interact.ID,
-		"interaction_token": interact.Token,
+		"user_id":           userID,
+		"interaction_token": interactionToken,
+		"command_name":      commandName,
 		"message_id":        message.ID,
-		"message_url":       fmt.Sprintf("https://discord.com/channels/%s/%s/%s", interact.GuildID, interact.ChannelID, message.ID),
+		"message_url":       fmt.Sprintf("https://discord.com/channels/%s/%s/%s", message.GuildID, message.ChannelID, message.ID),
 	}); err != nil {
-		return fmt.Errorf("GenerateByDiscord: %w", err)
+		return fmt.Errorf("generate: %w", err)
 	}
 
-	return nil
-}
-
-func (u ImageUseCase) GenerateByDiscordMessageComponent(ctx context.Context, interact *discordgo.Interaction) error {
 	return nil
 }

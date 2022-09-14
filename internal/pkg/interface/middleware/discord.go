@@ -33,7 +33,7 @@ func RegisterInteractionCommand(c *gin.Context) {
 
 	var once sync.Once
 	once.Do(func() {
-		ses, err := discordgo.New("Bot " + env.DISCORD.BOT_TOKEN)
+		session, err := discordgo.New("Bot " + env.DISCORD.BOT_TOKEN)
 		if err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
@@ -42,14 +42,14 @@ func RegisterInteractionCommand(c *gin.Context) {
 		appID := env.DISCORD.APP_ID
 		guildID := env.DISCORD.GUILD_ID
 
-		if _, err := ses.ApplicationCommandBulkOverwrite(appID, guildID, discord.Commands); err != nil {
+		if _, err := session.ApplicationCommandBulkOverwrite(appID, guildID, discord.Commands); err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 		log.Println("RegisterInteractionCommand: all commands updated")
 
 		for _, command := range discord.DeprecatedCommands {
-			if err := ses.ApplicationCommandDelete(appID, guildID, command.ID); err != nil {
+			if err := session.ApplicationCommandDelete(appID, guildID, command.ID); err != nil {
 				c.AbortWithError(http.StatusInternalServerError, err)
 				return
 			}
