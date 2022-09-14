@@ -45,12 +45,11 @@ func (u ImageUseCase) GenerateByDiscordMessageComponent(ctx context.Context, int
 	customID := data.CustomID
 
 	params := strings.Split(customID, "##")
-	if len(params) != 3 {
+	if len(params) != 2 {
 		return fmt.Errorf("GenerateByDiscordMessageComponent: invalid custom id: id=%v", customID)
 	}
 
-	commandName := params[1]
-	messageID := params[2]
+	messageID := params[1]
 
 	session, err := discordgo.New(fmt.Sprintf("Bot %s", environment.MustGet().DISCORD.BOT_TOKEN))
 	if err != nil {
@@ -62,7 +61,7 @@ func (u ImageUseCase) GenerateByDiscordMessageComponent(ctx context.Context, int
 		return fmt.Errorf("GenerateByDiscordMessageComponent: %w", err)
 	}
 
-	if err := u.generate(ctx, interact.GuildID, interact.ChannelID, message.Author.ID, interact.Token, commandName, message); err != nil {
+	if err := u.generate(ctx, interact.GuildID, interact.ChannelID, message.Author.ID, interact.Token, message.Interaction.Name, message); err != nil {
 		return fmt.Errorf("GenerateByDiscordMessageComponent: %w", err)
 	}
 
