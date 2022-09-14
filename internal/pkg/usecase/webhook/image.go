@@ -33,7 +33,7 @@ func (u ImageUseCase) GenerateByDiscordMessageCommand(ctx context.Context, inter
 		return nil
 	}
 
-	if err := u.generate(ctx, message.Author.ID, interact.Token, data.Name, message); err != nil {
+	if err := u.generate(ctx, interact.GuildID, interact.ChannelID, message.Author.ID, interact.Token, data.Name, message); err != nil {
 		return fmt.Errorf("GenerateByDiscordMessageCommand: %w", err)
 	}
 
@@ -62,14 +62,14 @@ func (u ImageUseCase) GenerateByDiscordMessageComponent(ctx context.Context, int
 		return fmt.Errorf("GenerateByDiscordMessageComponent: %w", err)
 	}
 
-	if err := u.generate(ctx, message.Author.ID, commandName, interact.Token, message); err != nil {
+	if err := u.generate(ctx, interact.GuildID, interact.ChannelID, message.Author.ID, commandName, interact.Token, message); err != nil {
 		return fmt.Errorf("GenerateByDiscordMessageComponent: %w", err)
 	}
 
 	return nil
 }
 
-func (u ImageUseCase) generate(ctx context.Context, userID, interactionToken, commandName string, message *discordgo.Message) error {
+func (u ImageUseCase) generate(ctx context.Context, guildID, channelID, userID, interactionToken, commandName string, message *discordgo.Message) error {
 	var initImageURL *string
 	var maskImageURL *string
 
@@ -111,7 +111,7 @@ func (u ImageUseCase) generate(ctx context.Context, userID, interactionToken, co
 		"interaction_token": interactionToken,
 		"command_name":      commandName,
 		"message_id":        message.ID,
-		"message_url":       fmt.Sprintf("https://discord.com/channels/%s/%s/%s", message.GuildID, message.ChannelID, message.ID),
+		"message_url":       fmt.Sprintf("https://discord.com/channels/%s/%s/%s", guildID, channelID, message.ID),
 	}); err != nil {
 		return fmt.Errorf("generate: %w", err)
 	}
