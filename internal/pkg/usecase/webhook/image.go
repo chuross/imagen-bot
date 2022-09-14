@@ -74,7 +74,7 @@ func (u ImageUseCase) GenerateByLine(ctx context.Context, events []*linebot.Even
 	return nil
 }
 
-func (u ImageUseCase) GenerateByDiscord(ctx context.Context, interact *discordgo.Interaction) error {
+func (u ImageUseCase) GenerateByDiscordMessageCommand(ctx context.Context, interact *discordgo.Interaction) error {
 	data := interact.ApplicationCommandData()
 
 	if !strings.HasPrefix(data.Name, "imagen") {

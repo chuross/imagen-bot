@@ -57,12 +57,18 @@ func (h WebhookHandler) HookByDiscord(c *gin.Context) {
 
 	switch intaract.Type {
 	case discordgo.InteractionApplicationCommand:
-		if err := h.imageUseCase.GenerateByDiscord(c.Request.Context(), &intaract); err != nil {
+		if err := h.imageUseCase.GenerateByDiscordMessageCommand(c.Request.Context(), &intaract); err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
 		c.JSON(http.StatusOK, gin.H{
 			"type": discordgo.InteractionResponseDeferredChannelMessageWithSource,
+		})
+	case discordgo.InteractionMessageComponent:
+		// TODO
+
+		c.JSON(http.StatusOK, gin.H{
+			"type": discordgo.InteractionResponseChannelMessageWithSource,
 		})
 	default:
 		c.JSON(http.StatusOK, gin.H{
