@@ -8,14 +8,12 @@ import (
 	"imagen/internal/pkg/infra/discord"
 	"imagen/internal/pkg/infra/environment"
 	"imagen/internal/pkg/infra/service"
-	"log"
 	"strconv"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/go-resty/resty/v2"
 	"github.com/jessevdk/go-flags"
-	"github.com/line/line-bot-sdk-go/v7/linebot"
 	"github.com/mattn/go-shellwords"
 )
 
@@ -35,43 +33,6 @@ func newImageUseCase(services *service.Services) *ImageUseCase {
 		imageService: services.Image,
 		client:       resty.New(),
 	}
-}
-
-func (u ImageUseCase) GenerateByLine(ctx context.Context, events []*linebot.Event) error {
-	for _, event := range events {
-		if event.Type != linebot.EventTypeMessage {
-			log.Printf("GenerateByLine: unexpected event type: type=%v", event.Type)
-			continue
-		}
-
-		switch event.Message.(type) {
-		case *linebot.TextMessage:
-			sendingTargetID := event.Source.UserID
-
-			opt, err := resolveImageGenerateOption(event.Message.(*linebot.TextMessage).Text)
-			if err != nil {
-				return fmt.Errorf("GenerateByLine: %w", err)
-			}
-
-			command := domain.ImageGenerateComamnd{
-				Prompt: opt.Text,
-				Width:  opt.Width,
-				Height: opt.Height,
-			}
-
-			if err := u.imageService.Generate(ctx, command, map[string]interface{}{
-				"via":               "line-bot",
-				"sending_target_id": sendingTargetID,
-				"reply_token":       event.ReplyToken,
-			}); err != nil {
-				return fmt.Errorf("GenerateByLine: %w", err)
-			}
-		default:
-			fmt.Printf("GenerateByLine: unexpected message type: type=%v", event.Message)
-		}
-	}
-
-	return nil
 }
 
 func (u ImageUseCase) GenerateByDiscordMessageCommand(ctx context.Context, interact *discordgo.Interaction) error {

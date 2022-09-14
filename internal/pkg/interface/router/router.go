@@ -13,7 +13,6 @@ func Setup(r *gin.Engine, webhookUseCases *webhook.UseCases) {
 
 	{
 		handler := handler.NewWebhookHandler(webhookUseCases)
-		root.POST("/hooks/line", handler.HookByLine)
 		root.POST("/hooks/discord", middleware.VerifyDiscordSignature, middleware.RegisterInteractionCommand, handler.HookByDiscord)
 	}
 }
