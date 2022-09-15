@@ -8,10 +8,7 @@ require (
 	github.com/Netflix/go-env v0.0.0-20220526054621-78278af1949d
 	github.com/bwmarrin/discordgo v0.26.1
 	github.com/gin-gonic/gin v1.8.1
-	github.com/go-resty/resty/v2 v2.7.0
 	github.com/hashicorp/go-retryablehttp v0.7.1
-	github.com/jessevdk/go-flags v1.5.0
-	github.com/mattn/go-shellwords v1.0.12
 	golang.org/x/text v0.3.7
 )
 
