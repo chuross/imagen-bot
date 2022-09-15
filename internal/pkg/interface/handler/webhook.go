@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"imagen/internal/pkg/infra/discord"
 	"imagen/internal/pkg/usecase/webhook"
 	"log"
 	"net/http"
@@ -32,10 +33,20 @@ func (h WebhookHandler) HookByDiscord(c *gin.Context) {
 
 	switch intaract.Type {
 	case discordgo.InteractionApplicationCommand:
-		if err := h.imageUseCase.GenerateByMessageCommand(c.Request.Context(), &intaract); err != nil {
-			c.AbortWithError(http.StatusInternalServerError, err)
-			return
+		data := intaract.ApplicationCommandData()
+		switch data.Name {
+		case discord.CommandImagen.ID:
+			if err := h.imageUseCase.GenerateByMessageCommand(c.Request.Context(), &intaract); err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+		case discord.CommandImagenUpscaling.ID:
+			if err := h.imageUseCase.UpscaleByMessageCommand(c.Request.Context(), &intaract); err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
 		}
+
 		c.JSON(http.StatusOK, gin.H{
 			"type": discordgo.InteractionResponseDeferredChannelMessageWithSource,
 		})

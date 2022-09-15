@@ -4,18 +4,17 @@ import "github.com/bwmarrin/discordgo"
 
 var Commands = []*discordgo.ApplicationCommand{
 	CommandImagen,
+	CommandImagenUpscaling,
 }
 
-var DeprecatedCommands = []*discordgo.ApplicationCommand{
-	CommandImagenTxt,
-}
+var DeprecatedCommands = []*discordgo.ApplicationCommand{}
 
 var CommandImagen = &discordgo.ApplicationCommand{
 	Name: "imagen",
 	Type: discordgo.MessageApplicationCommand,
 }
 
-var CommandImagenTxt = &discordgo.ApplicationCommand{
-	Name: "imagen-txt",
+var CommandImagenUpscaling = &discordgo.ApplicationCommand{
+	Name: "imagen-upscaling",
 	Type: discordgo.MessageApplicationCommand,
 }
