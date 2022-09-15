@@ -40,7 +40,7 @@ func (u ImageUseCase) UpscaleByMessageCommand(ctx context.Context, interact *dis
 	}
 
 	imageURL := message.Attachments[0].URL
-	u.imageService.Upscale(ctx, imageURL, imagenExtra(interact.GuildID, interact.ChannelID, message.Author.ID, interact.Token, message.ID))
+	u.imageService.Upscale(ctx, imageURL, imagenExtra(interact.Token, interact.GuildID, interact.ChannelID, message.Author.ID, message.ID))
 
 	return nil
 }
