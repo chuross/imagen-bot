@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"imagen/internal/pkg/domain"
+	"imagen/internal/pkg/infra/discord"
 	"imagen/internal/pkg/infra/environment"
 	"imagen/internal/pkg/infra/service"
 	"strings"
@@ -25,7 +26,7 @@ func newImageUseCase(services *service.Services) *ImageUseCase {
 func (u ImageUseCase) UpscaleByMessageCommand(ctx context.Context, interact *discordgo.Interaction) error {
 	data := interact.ApplicationCommandData()
 
-	if data.Name != "imagen-upscale" {
+	if data.Name != discord.CommandImagenUpscaling.Name {
 		return fmt.Errorf("UpscaleByMessageCommand: unexpected command: %v", interact.ApplicationCommandData().Name)
 	}
 
@@ -47,7 +48,7 @@ func (u ImageUseCase) UpscaleByMessageCommand(ctx context.Context, interact *dis
 func (u ImageUseCase) GenerateByMessageCommand(ctx context.Context, interact *discordgo.Interaction) error {
 	data := interact.ApplicationCommandData()
 
-	if !strings.HasPrefix(data.Name, "imagen") {
+	if data.Name != discord.CommandImagen.Name {
 		return fmt.Errorf("GenerateByMessageCommand: unexpected command: %v", interact.ApplicationCommandData().Name)
 	}
 
