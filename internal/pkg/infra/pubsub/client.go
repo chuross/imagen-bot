@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"imagen/internal/pkg/domain"
+	"log"
 
 	"cloud.google.com/go/pubsub"
 )
@@ -83,6 +84,8 @@ func (c Client) publish(ctx context.Context, data []byte) error {
 	if _, err := res.Get(ctx); err != nil {
 		return fmt.Errorf("publish: topic=%v: %w", t.String(), err)
 	}
+
+	log.Println("pubsub_client: publish successful")
 
 	return nil
 }
