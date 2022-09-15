@@ -36,12 +36,12 @@ func (h WebhookHandler) HookByDiscord(c *gin.Context) {
 		log.Printf("HookByDiscord: receive application command: name=%v", data.Name)
 
 		switch data.Name {
-		case discord.CommandImagen.ID:
+		case discord.CommandImagen.Name:
 			if err := h.imageUseCase.GenerateByMessageCommand(c.Request.Context(), &intaract); err != nil {
 				c.AbortWithError(http.StatusInternalServerError, err)
 				return
 			}
-		case discord.CommandImagenUpscaling.ID:
+		case discord.CommandImagenUpscaling.Name:
 			if err := h.imageUseCase.UpscaleByMessageCommand(c.Request.Context(), &intaract); err != nil {
 				c.AbortWithError(http.StatusInternalServerError, err)
 				return
