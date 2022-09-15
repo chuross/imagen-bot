@@ -29,11 +29,12 @@ func (h WebhookHandler) HookByDiscord(c *gin.Context) {
 		return
 	}
 
-	log.Printf("HookByDiscord: receive interaction: type=%v", intaract.Type)
-
 	switch intaract.Type {
 	case discordgo.InteractionApplicationCommand:
 		data := intaract.ApplicationCommandData()
+
+		log.Printf("HookByDiscord: receive application command: name=%v", data.Name)
+
 		switch data.Name {
 		case discord.CommandImagen.ID:
 			if err := h.imageUseCase.GenerateByMessageCommand(c.Request.Context(), &intaract); err != nil {
@@ -51,6 +52,8 @@ func (h WebhookHandler) HookByDiscord(c *gin.Context) {
 			"type": discordgo.InteractionResponseDeferredChannelMessageWithSource,
 		})
 	case discordgo.InteractionMessageComponent:
+		log.Println("HookByDiscord: receive message component command")
+
 		if err := h.imageUseCase.GenerateByMessageComponent(c.Request.Context(), &intaract); err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
