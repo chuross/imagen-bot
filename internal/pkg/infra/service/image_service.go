@@ -35,11 +35,18 @@ func (s imageService) Generate(ctx context.Context, command domain.ImageGenerate
 
 	command.Prompt = tls[0].Text
 
-	env := environment.MustGet()
-
-	pubsubClient := pubsub.NewClient(env.GOOGLE_CLOUD_PROJECT_ID)
+	pubsubClient := pubsub.NewClient(environment.MustGet().GOOGLE_CLOUD_PROJECT_ID)
 	if err = pubsubClient.PublishGenerateImage(ctx, command, extra); err != nil {
 		return fmt.Errorf("Generate: %w", err)
+	}
+
+	return nil
+}
+
+func (s imageService) Upscale(ctx context.Context, imageURL string, extra map[string]interface{}) error {
+	pubsubClient := pubsub.NewClient(environment.MustGet().GOOGLE_CLOUD_PROJECT_ID)
+	if err := pubsubClient.PublishUpscaleImage(ctx, imageURL, extra); err != nil {
+		return fmt.Errorf("Upscale: %w", err)
 	}
 
 	return nil

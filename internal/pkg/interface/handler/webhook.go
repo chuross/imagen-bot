@@ -32,7 +32,7 @@ func (h WebhookHandler) HookByDiscord(c *gin.Context) {
 
 	switch intaract.Type {
 	case discordgo.InteractionApplicationCommand:
-		if err := h.imageUseCase.GenerateByDiscordMessageCommand(c.Request.Context(), &intaract); err != nil {
+		if err := h.imageUseCase.GenerateByMessageCommand(c.Request.Context(), &intaract); err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}
@@ -40,7 +40,7 @@ func (h WebhookHandler) HookByDiscord(c *gin.Context) {
 			"type": discordgo.InteractionResponseDeferredChannelMessageWithSource,
 		})
 	case discordgo.InteractionMessageComponent:
-		if err := h.imageUseCase.GenerateByDiscordMessageComponent(c.Request.Context(), &intaract); err != nil {
+		if err := h.imageUseCase.GenerateByMessageComponent(c.Request.Context(), &intaract); err != nil {
 			c.AbortWithError(http.StatusInternalServerError, err)
 			return
 		}

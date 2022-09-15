@@ -24,25 +24,56 @@ func NewClient(projectID string) *Client {
 }
 
 func (c Client) PublishGenerateImage(ctx context.Context, command domain.ImageGenerateComamnd, extra map[string]interface{}) error {
-	client, err := pubsub.NewClient(ctx, c.projectID)
-	if err != nil {
-		return fmt.Errorf("PublishGenerateImage: projectID=%v: %w", c.projectID, err)
-	}
-
-	defer client.Close()
-
 	data, err := json.Marshal(map[string]interface{}{
-		"prompt":         command.Prompt,
-		"width":          command.Width,
-		"height":         command.Height,
-		"init_image_url": command.InitImageURL,
-		"mask_image_url": command.MaskImageURL,
-		"extra":          extra,
+		"event_name": "generate",
+		"params": map[string]interface{}{
+			"prompt":         command.Prompt,
+			"width":          command.Width,
+			"height":         command.Height,
+			"init_image_url": command.InitImageURL,
+			"mask_image_url": command.MaskImageURL,
+			"extra":          extra,
+		},
 	})
 
 	if err != nil {
 		return fmt.Errorf("PublishGenerateImage: %w", err)
 	}
+
+	if err := c.publish(ctx, data); err != nil {
+		return fmt.Errorf("PublishGenerateImage: %w", err)
+	}
+
+	return nil
+}
+
+func (c Client) PublishUpscaleImage(ctx context.Context, imageURL string, extra map[string]interface{}) error {
+	data, err := json.Marshal(map[string]interface{}{
+		"event_name": "upscaling",
+		"params": map[string]interface{}{
+			"image_url": imageURL,
+			"extra":     extra,
+		},
+	})
+
+	if err != nil {
+		return fmt.Errorf("PublishUpscaleImage: %w", err)
+	}
+
+	if err := c.publish(ctx, data); err != nil {
+		return fmt.Errorf("PublishUpscaleImage: %w", err)
+	}
+
+	return nil
+}
+
+func (c Client) publish(ctx context.Context, data []byte) error {
+	client, err := pubsub.NewClient(ctx, c.projectID)
+	if err != nil {
+		return fmt.Errorf("publish: projectID=%v: %w", c.projectID, err)
+	}
+
+	defer client.Close()
 
 	t := client.Topic(topicGenerateImage)
 	res := t.Publish(ctx, &pubsub.Message{
@@ -50,7 +81,7 @@ func (c Client) PublishGenerateImage(ctx context.Context, command domain.ImageGe
 	})
 
 	if _, err := res.Get(ctx); err != nil {
-		return fmt.Errorf("PublishGenerateImage: topic=%v: %w", t.String(), err)
+		return fmt.Errorf("publish: topic=%v: %w", t.String(), err)
 	}
 
 	return nil

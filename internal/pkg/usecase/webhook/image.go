@@ -2,6 +2,7 @@ package webhook
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"imagen/internal/pkg/domain"
 	"imagen/internal/pkg/infra/environment"
@@ -21,11 +22,33 @@ func newImageUseCase(services *service.Services) *ImageUseCase {
 	}
 }
 
-func (u ImageUseCase) GenerateByDiscordMessageCommand(ctx context.Context, interact *discordgo.Interaction) error {
+func (u ImageUseCase) UpscaleByMessageCommand(ctx context.Context, interact *discordgo.Interaction) error {
+	data := interact.ApplicationCommandData()
+
+	if data.Name != "imagen-upscale" {
+		return fmt.Errorf("UpscaleByMessageCommand: unexpected command: %v", interact.ApplicationCommandData().Name)
+	}
+
+	message, ok := data.Resolved.Messages[data.TargetID]
+	if !ok {
+		return nil
+	}
+
+	if len(message.Attachments) == 0 {
+		return errors.New("UpscaleByMessageCommand: no attachment")
+	}
+
+	imageURL := message.Attachments[0].URL
+	u.imageService.Upscale(ctx, imageURL, imagenExtra(interact.GuildID, interact.ChannelID, message.Author.ID, interact.Token, message.ID))
+
+	return nil
+}
+
+func (u ImageUseCase) GenerateByMessageCommand(ctx context.Context, interact *discordgo.Interaction) error {
 	data := interact.ApplicationCommandData()
 
 	if !strings.HasPrefix(data.Name, "imagen") {
-		return fmt.Errorf("GenerateByDiscordMessageCommand: unexpected command: %v", interact.ApplicationCommandData().Name)
+		return fmt.Errorf("GenerateByMessageCommand: unexpected command: %v", interact.ApplicationCommandData().Name)
 	}
 
 	message, ok := data.Resolved.Messages[data.TargetID]
@@ -34,19 +57,19 @@ func (u ImageUseCase) GenerateByDiscordMessageCommand(ctx context.Context, inter
 	}
 
 	if err := u.generate(ctx, interact.GuildID, interact.ChannelID, message.Author.ID, interact.Token, message); err != nil {
-		return fmt.Errorf("GenerateByDiscordMessageCommand: %w", err)
+		return fmt.Errorf("GenerateByMessageCommand: %w", err)
 	}
 
 	return nil
 }
 
-func (u ImageUseCase) GenerateByDiscordMessageComponent(ctx context.Context, interact *discordgo.Interaction) error {
+func (u ImageUseCase) GenerateByMessageComponent(ctx context.Context, interact *discordgo.Interaction) error {
 	data := interact.MessageComponentData()
 	customID := data.CustomID
 
 	params := strings.Split(customID, "##")
 	if len(params) != 2 {
-		return fmt.Errorf("GenerateByDiscordMessageComponent: invalid custom id: id=%v", customID)
+		return fmt.Errorf("GenerateByMessageComponent: invalid custom id: id=%v", customID)
 	}
 
 	messageID := params[1]
@@ -58,11 +81,11 @@ func (u ImageUseCase) GenerateByDiscordMessageComponent(ctx context.Context, int
 
 	message, err := session.ChannelMessage(interact.ChannelID, messageID)
 	if err != nil {
-		return fmt.Errorf("GenerateByDiscordMessageComponent: %w", err)
+		return fmt.Errorf("GenerateByMessageComponent: %w", err)
 	}
 
 	if err := u.generate(ctx, interact.GuildID, interact.ChannelID, message.Author.ID, interact.Token, message); err != nil {
-		return fmt.Errorf("GenerateByDiscordMessageComponent: %w", err)
+		return fmt.Errorf("GenerateByMessageComponent: %w", err)
 	}
 
 	return nil
@@ -104,15 +127,19 @@ func (u ImageUseCase) generate(ctx context.Context, guildID, channelID, userID, 
 		MaskImageURL: maskImageURL,
 	}
 
-	if err := u.imageService.Generate(ctx, command, map[string]interface{}{
-		"via":               "discord",
-		"user_id":           userID,
-		"interaction_token": interactionToken,
-		"message_id":        message.ID,
-		"message_url":       fmt.Sprintf("https://discord.com/channels/%s/%s/%s", guildID, channelID, message.ID),
-	}); err != nil {
+	if err := u.imageService.Generate(ctx, command, imagenExtra(interactionToken, guildID, channelID, userID, message.ID)); err != nil {
 		return fmt.Errorf("generate: %w", err)
 	}
 
 	return nil
+}
+
+func imagenExtra(interactionToken, guildID, channelID, userID, messageID string) map[string]interface{} {
+	return map[string]interface{}{
+		"via":               "discord",
+		"user_id":           userID,
+		"interaction_token": interactionToken,
+		"message_id":        messageID,
+		"message_url":       fmt.Sprintf("https://discord.com/channels/%s/%s/%s", guildID, channelID, messageID),
+	}
 }
