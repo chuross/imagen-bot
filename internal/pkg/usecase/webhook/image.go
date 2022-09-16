@@ -5,9 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"imagen/internal/pkg/domain"
+	"imagen/internal/pkg/infra/commandline"
 	"imagen/internal/pkg/infra/discord"
 	"imagen/internal/pkg/infra/environment"
 	"imagen/internal/pkg/infra/service"
+	"strconv"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
@@ -120,10 +122,15 @@ func (u ImageUseCase) generate(ctx context.Context, guildID, channelID, userID, 
 		initImageURL = &message.Attachments[0].URL
 	}
 
+	prompt, width, height, err := resolveContent(message.Content)
+	if err != nil {
+		return fmt.Errorf("generate: %w", err)
+	}
+
 	command := domain.ImageGenerateComamnd{
-		Prompt:       message.Content,
-		Width:        0,
-		Height:       0,
+		Prompt:       prompt,
+		Width:        width,
+		Height:       height,
 		InitImageURL: initImageURL,
 		MaskImageURL: maskImageURL,
 	}
@@ -143,4 +150,33 @@ func imagenExtra(interactionToken, guildID, channelID, userID, messageID string)
 		"message_id":        messageID,
 		"message_url":       fmt.Sprintf("https://discord.com/channels/%s/%s/%s", guildID, channelID, messageID),
 	}
+}
+
+func resolveContent(content string) (prompt string, width, height int, err error) {
+	type option struct {
+		Size string `short:"s"`
+	}
+
+	spl := strings.Split(content, "##")
+	prompt = spl[0]
+	optstr := spl[1]
+
+	opt := option{}
+	if err := commandline.ParseArgs(optstr, &opt); err != nil {
+		return "", 0, 0, fmt.Errorf("resolveContent: %w", err)
+	}
+
+	s := strings.Split(opt.Size, "x")
+
+	width, err = strconv.Atoi(s[0])
+	if err != nil {
+		return "", 0, 0, fmt.Errorf("resolveContent: %w", err)
+	}
+
+	height, err = strconv.Atoi(s[1])
+	if err != nil {
+		return "", 0, 0, fmt.Errorf("resolveContent: %w", err)
+	}
+
+	return
 }
