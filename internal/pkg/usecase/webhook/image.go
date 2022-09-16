@@ -159,7 +159,7 @@ func resolveContent(content string) (prompt string, width, height int, err error
 
 	spl := strings.Split(content, "##")
 	if len(spl) == 1 {
-		return prompt, 0, 0, nil
+		return content, 0, 0, nil
 	}
 
 	prompt = spl[0]
