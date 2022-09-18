@@ -13,7 +13,7 @@ func ParseArgs(command string, obg interface{}) error {
 		return fmt.Errorf("ResolveArgs: %w", err)
 	}
 
-	if _, err := flags.ParseArgs(&obg, args); err != nil {
+	if _, err := flags.ParseArgs(obg, args); err != nil {
 		return fmt.Errorf("ResolveArgs: %w", err)
 	}
 

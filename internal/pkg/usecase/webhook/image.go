@@ -153,7 +153,7 @@ func imagenExtra(interactionToken, guildID, channelID, userID, messageID string)
 }
 
 func resolveContent(content string) (prompt string, width, height int, err error) {
-	type option struct {
+	var opt struct {
 		Size string `short:"s"`
 	}
 
@@ -165,7 +165,6 @@ func resolveContent(content string) (prompt string, width, height int, err error
 	prompt = spl[0]
 	optstr := spl[1]
 
-	opt := option{}
 	if err := commandline.ParseArgs(optstr, &opt); err != nil {
 		return "", 0, 0, fmt.Errorf("resolveContent: %w", err)
 	}
