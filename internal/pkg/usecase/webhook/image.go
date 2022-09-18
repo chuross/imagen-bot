@@ -122,7 +122,7 @@ func (u ImageUseCase) generate(ctx context.Context, guildID, channelID, userID, 
 		initImageURL = &message.Attachments[0].URL
 	}
 
-	prompt, width, height, err := resolveContent(message.Content)
+	prompt, width, height, strength, err := resolveContent(message.Content)
 	if err != nil {
 		return fmt.Errorf("generate: %w", err)
 	}
@@ -131,6 +131,7 @@ func (u ImageUseCase) generate(ctx context.Context, guildID, channelID, userID, 
 		Prompt:       prompt,
 		Width:        width,
 		Height:       height,
+		Strength:     strength,
 		InitImageURL: initImageURL,
 		MaskImageURL: maskImageURL,
 	}
@@ -152,34 +153,37 @@ func imagenExtra(interactionToken, guildID, channelID, userID, messageID string)
 	}
 }
 
-func resolveContent(content string) (prompt string, width, height int, err error) {
+func resolveContent(content string) (prompt string, width, height int, strength float64, err error) {
 	var opt struct {
-		Size string `short:"s"`
+		Size     string  `short:"s"`
+		Strength float64 `short:"st"`
 	}
 
 	spl := strings.Split(content, "##")
 	if len(spl) == 1 {
-		return content, 0, 0, nil
+		return content, 0, 0, 0, nil
 	}
 
 	prompt = spl[0]
 	optstr := spl[1]
 
 	if err := commandline.ParseArgs(optstr, &opt); err != nil {
-		return "", 0, 0, fmt.Errorf("resolveContent: %w", err)
+		return "", 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
 	}
 
 	s := strings.Split(opt.Size, "x")
 
 	width, err = strconv.Atoi(s[0])
 	if err != nil {
-		return "", 0, 0, fmt.Errorf("resolveContent: %w", err)
+		return "", 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
 	}
 
 	height, err = strconv.Atoi(s[1])
 	if err != nil {
-		return "", 0, 0, fmt.Errorf("resolveContent: %w", err)
+		return "", 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
 	}
+
+	strength = opt.Strength
 
 	return
 }
