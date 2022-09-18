@@ -122,7 +122,7 @@ func (u ImageUseCase) generate(ctx context.Context, guildID, channelID, userID, 
 		initImageURL = &message.Attachments[0].URL
 	}
 
-	prompt, width, height, strength, count, err := resolveContent(message.Content)
+	prompt, width, height, strength, number, err := resolveContent(message.Content)
 	if err != nil {
 		return fmt.Errorf("generate: %w", err)
 	}
@@ -134,7 +134,7 @@ func (u ImageUseCase) generate(ctx context.Context, guildID, channelID, userID, 
 		Strength:     strength,
 		InitImageURL: initImageURL,
 		MaskImageURL: maskImageURL,
-		Count:        count,
+		Number:       number,
 	}
 
 	if err := u.imageService.Generate(ctx, command, imagenExtra(interactionToken, guildID, channelID, userID, message.ID)); err != nil {
@@ -154,11 +154,11 @@ func imagenExtra(interactionToken, guildID, channelID, userID, messageID string)
 	}
 }
 
-func resolveContent(content string) (prompt string, width, height int, strength float64, count int, err error) {
+func resolveContent(content string) (prompt string, width, height int, strength float64, number int, err error) {
 	var opt struct {
 		Size     string  `long:"size"`
 		Strength float64 `short:"s" long:"strength"`
-		Count    int     `short:"n" default:"5"`
+		Number   int     `short:"n" default:"5"`
 	}
 
 	spl := strings.Split(content, "##")
@@ -188,7 +188,7 @@ func resolveContent(content string) (prompt string, width, height int, strength 
 	}
 
 	strength = opt.Strength
-	count = opt.Count
+	number = opt.Number
 
 	return
 }

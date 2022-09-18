@@ -9,7 +9,7 @@ type ImageGenerateComamnd struct {
 	InitImageURL *string
 	MaskImageURL *string
 	Strength     float64
-	Count        int
+	Number       int
 }
 
 type ImageService interface {
