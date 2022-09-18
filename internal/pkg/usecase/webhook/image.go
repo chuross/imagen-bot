@@ -155,8 +155,8 @@ func imagenExtra(interactionToken, guildID, channelID, userID, messageID string)
 
 func resolveContent(content string) (prompt string, width, height int, strength float64, err error) {
 	var opt struct {
-		Size     string  `short:"s"`
-		Strength float64 `short:"st"`
+		Size     string `short:"s"`
+		Strength bool   `long:"strength"`
 	}
 
 	spl := strings.Split(content, "##")
