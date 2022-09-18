@@ -173,14 +173,16 @@ func resolveContent(content string) (prompt string, width, height int, strength 
 
 	s := strings.Split(opt.Size, "x")
 
-	width, err = strconv.Atoi(s[0])
-	if err != nil {
-		return "", 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
-	}
+	if len(s) == 2 {
+		width, err = strconv.Atoi(s[0])
+		if err != nil {
+			return "", 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
+		}
 
-	height, err = strconv.Atoi(s[1])
-	if err != nil {
-		return "", 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
+		height, err = strconv.Atoi(s[1])
+		if err != nil {
+			return "", 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
+		}
 	}
 
 	strength = opt.Strength
