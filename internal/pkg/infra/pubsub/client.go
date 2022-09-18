@@ -34,6 +34,7 @@ func (c Client) PublishGenerateImage(ctx context.Context, command domain.ImageGe
 			"strength":       command.Strength,
 			"init_image_url": command.InitImageURL,
 			"mask_image_url": command.MaskImageURL,
+			"count":          command.Count,
 			"extra":          extra,
 		},
 	})

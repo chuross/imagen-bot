@@ -122,7 +122,7 @@ func (u ImageUseCase) generate(ctx context.Context, guildID, channelID, userID, 
 		initImageURL = &message.Attachments[0].URL
 	}
 
-	prompt, width, height, strength, err := resolveContent(message.Content)
+	prompt, width, height, strength, count, err := resolveContent(message.Content)
 	if err != nil {
 		return fmt.Errorf("generate: %w", err)
 	}
@@ -134,6 +134,7 @@ func (u ImageUseCase) generate(ctx context.Context, guildID, channelID, userID, 
 		Strength:     strength,
 		InitImageURL: initImageURL,
 		MaskImageURL: maskImageURL,
+		Count:        count,
 	}
 
 	if err := u.imageService.Generate(ctx, command, imagenExtra(interactionToken, guildID, channelID, userID, message.ID)); err != nil {
@@ -153,22 +154,23 @@ func imagenExtra(interactionToken, guildID, channelID, userID, messageID string)
 	}
 }
 
-func resolveContent(content string) (prompt string, width, height int, strength float64, err error) {
+func resolveContent(content string) (prompt string, width, height int, strength float64, count int, err error) {
 	var opt struct {
 		Size     string  `long:"size"`
 		Strength float64 `short:"s" long:"strength"`
+		Count    int     `short:"n" default:"5"`
 	}
 
 	spl := strings.Split(content, "##")
 	if len(spl) == 1 {
-		return content, 0, 0, 0, nil
+		return content, 0, 0, 0, 0, nil
 	}
 
 	prompt = spl[0]
 	optstr := spl[1]
 
 	if err := commandline.ParseArgs(optstr, &opt); err != nil {
-		return "", 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
+		return "", 0, 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
 	}
 
 	s := strings.Split(opt.Size, "x")
@@ -176,16 +178,17 @@ func resolveContent(content string) (prompt string, width, height int, strength 
 	if len(s) == 2 {
 		width, err = strconv.Atoi(s[0])
 		if err != nil {
-			return "", 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
+			return "", 0, 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
 		}
 
 		height, err = strconv.Atoi(s[1])
 		if err != nil {
-			return "", 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
+			return "", 0, 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
 		}
 	}
 
 	strength = opt.Strength
+	count = opt.Count
 
 	return
 }
