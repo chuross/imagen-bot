@@ -4,6 +4,7 @@ import "github.com/bwmarrin/discordgo"
 
 var Commands = []*discordgo.ApplicationCommand{
 	CommandImagen,
+	CommandWorkspace,
 }
 
 var DeprecatedCommands = []*discordgo.ApplicationCommand{}
