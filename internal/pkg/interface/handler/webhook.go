@@ -12,12 +12,14 @@ import (
 )
 
 type WebhookHandler struct {
-	imageUseCase *webhook.ImageUseCase
+	imageUseCase     *webhook.ImageUseCase
+	workspaceUseCase *webhook.WorkspaceUseCase
 }
 
 func NewWebhookHandler(usecases *webhook.UseCases) *WebhookHandler {
 	return &WebhookHandler{
-		imageUseCase: usecases.Image,
+		imageUseCase:     usecases.Image,
+		workspaceUseCase: usecases.Workspace,
 	}
 }
 
@@ -41,6 +43,8 @@ func (h WebhookHandler) HookByDiscord(c *gin.Context) {
 				c.AbortWithError(http.StatusInternalServerError, err)
 				return
 			}
+		case discord.CommandWorkspace.Name:
+			if err := h.workspaceUseCase.Create()
 		}
 
 		c.JSON(http.StatusOK, gin.H{
