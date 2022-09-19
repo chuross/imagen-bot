@@ -41,11 +41,6 @@ func (h WebhookHandler) HookByDiscord(c *gin.Context) {
 				c.AbortWithError(http.StatusInternalServerError, err)
 				return
 			}
-		case discord.CommandImagenUpscaling.Name:
-			if err := h.imageUseCase.UpscaleByMessageCommand(c.Request.Context(), &intaract); err != nil {
-				c.AbortWithError(http.StatusInternalServerError, err)
-				return
-			}
 		}
 
 		c.JSON(http.StatusOK, gin.H{

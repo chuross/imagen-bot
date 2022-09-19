@@ -2,7 +2,6 @@ package webhook
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"imagen/internal/pkg/domain"
 	"imagen/internal/pkg/infra/commandline"
@@ -23,28 +22,6 @@ func newImageUseCase(services *service.Services) *ImageUseCase {
 	return &ImageUseCase{
 		imageService: services.Image,
 	}
-}
-
-func (u ImageUseCase) UpscaleByMessageCommand(ctx context.Context, interact *discordgo.Interaction) error {
-	data := interact.ApplicationCommandData()
-
-	if data.Name != discord.CommandImagenUpscaling.Name {
-		return fmt.Errorf("UpscaleByMessageCommand: unexpected command: %v", interact.ApplicationCommandData().Name)
-	}
-
-	message, ok := data.Resolved.Messages[data.TargetID]
-	if !ok {
-		return nil
-	}
-
-	if len(message.Attachments) == 0 {
-		return errors.New("UpscaleByMessageCommand: no attachment")
-	}
-
-	imageURL := message.Attachments[0].URL
-	u.imageService.Upscale(ctx, imageURL, imagenExtra(interact.Token, interact.GuildID, interact.ChannelID, message.Author.ID, message.ID))
-
-	return nil
 }
 
 func (u ImageUseCase) GenerateByMessageCommand(ctx context.Context, interact *discordgo.Interaction) error {

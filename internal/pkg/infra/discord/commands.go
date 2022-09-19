@@ -6,16 +6,14 @@ var Commands = []*discordgo.ApplicationCommand{
 	CommandImagen,
 }
 
-var DeprecatedCommands = []*discordgo.ApplicationCommand{
-	CommandImagenUpscaling,
-}
+var DeprecatedCommands = []*discordgo.ApplicationCommand{}
 
 var CommandImagen = &discordgo.ApplicationCommand{
 	Name: "imagen",
 	Type: discordgo.MessageApplicationCommand,
 }
 
-var CommandImagenUpscaling = &discordgo.ApplicationCommand{
-	Name: "imagen-upscaling",
+var CommandWorkspace = &discordgo.ApplicationCommand{
+	Name: "workspace",
 	Type: discordgo.MessageApplicationCommand,
 }

@@ -50,26 +50,6 @@ func (c Client) PublishGenerateImage(ctx context.Context, command domain.ImageGe
 	return nil
 }
 
-func (c Client) PublishUpscaleImage(ctx context.Context, imageURL string, extra map[string]interface{}) error {
-	data, err := json.Marshal(map[string]interface{}{
-		"event_name": "upscaling",
-		"params": map[string]interface{}{
-			"image_url": imageURL,
-			"extra":     extra,
-		},
-	})
-
-	if err != nil {
-		return fmt.Errorf("PublishUpscaleImage: %w", err)
-	}
-
-	if err := c.publish(ctx, data); err != nil {
-		return fmt.Errorf("PublishUpscaleImage: %w", err)
-	}
-
-	return nil
-}
-
 func (c Client) publish(ctx context.Context, data []byte) error {
 	client, err := pubsub.NewClient(ctx, c.projectID)
 	if err != nil {
