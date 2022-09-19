@@ -44,7 +44,10 @@ func (h WebhookHandler) HookByDiscord(c *gin.Context) {
 				return
 			}
 		case discord.CommandWorkspace.Name:
-			if err := h.workspaceUseCase.Create()
+			if err := h.workspaceUseCase.Create(&intaract); err != nil {
+				c.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
 		}
 
 		c.JSON(http.StatusOK, gin.H{
