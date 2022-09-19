@@ -5,11 +5,13 @@ import (
 )
 
 type Services struct {
-	Image domain.ImageService
+	Image     domain.ImageService
+	Workspace domain.WorkspaceService
 }
 
 func NewServices() *Services {
 	return &Services{
-		Image: newImageService(),
+		Image:     newImageService(),
+		Workspace: newWorkspaceService(),
 	}
 }
