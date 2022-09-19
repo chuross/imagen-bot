@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"fmt"
 	"imagen/internal/pkg/domain"
 	"imagen/internal/pkg/infra/environment"
@@ -42,7 +43,7 @@ func (w workspaceService) Create(channelID, messageID string) error {
 		return fmt.Errorf("Create: %w", err)
 	}
 
-	if _, err := session.ChannelFileSendWithMessage(ch.ID, message.Content, attachment.Filename, r.RawBody()); err != nil {
+	if _, err := session.ChannelFileSendWithMessage(ch.ID, message.Content, attachment.Filename, bytes.NewReader(r.Body())); err != nil {
 		return fmt.Errorf("Create: %w", err)
 	}
 
