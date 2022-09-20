@@ -105,13 +105,15 @@ func (u ImageUseCase) generate(ctx context.Context, guildID, channelID, userID, 
 	}
 
 	command := domain.ImageGenerateComamnd{
-		Prompt:       prompt,
-		Width:        width,
-		Height:       height,
-		Strength:     strength,
-		InitImageURL: initImageURL,
-		MaskImageURL: maskImageURL,
-		Number:       number,
+		Prompt:          prompt,
+		NegativePrompts: []string{},
+		RawPrompt:       message.Content,
+		Width:           width,
+		Height:          height,
+		Strength:        strength,
+		InitImageURL:    initImageURL,
+		MaskImageURL:    maskImageURL,
+		Number:          number,
 	}
 
 	if err := u.imageService.Generate(ctx, command, imagenExtra(interactionToken, guildID, channelID, userID, message.ID)); err != nil {
@@ -150,22 +152,32 @@ func resolveContent(content string) (prompt string, width, height int, strength 
 		return "", 0, 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
 	}
 
-	s := strings.Split(opt.Size, "x")
-
-	if len(s) == 2 {
-		width, err = strconv.Atoi(s[0])
-		if err != nil {
-			return "", 0, 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
-		}
-
-		height, err = strconv.Atoi(s[1])
-		if err != nil {
-			return "", 0, 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
-		}
+	width, height, err = resolveSize(opt.Size)
+	if err != nil {
+		return "", 0, 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
 	}
 
 	strength = opt.Strength
 	number = opt.Number
+
+	return
+}
+
+func resolveSize(value string) (width, height int, err error) {
+	s := strings.Split(value, "x")
+
+	if len(s) != 2 {
+		return 0, 0, nil
+	}
+	width, err = strconv.Atoi(s[0])
+	if err != nil {
+		return 0, 0, fmt.Errorf("resolveSize: %w", err)
+	}
+
+	height, err = strconv.Atoi(s[1])
+	if err != nil {
+		return 0, 0, fmt.Errorf("resolveSize: %w", err)
+	}
 
 	return
 }

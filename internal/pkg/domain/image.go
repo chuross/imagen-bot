@@ -3,13 +3,15 @@ package domain
 import "context"
 
 type ImageGenerateComamnd struct {
-	Prompt       string
-	Width        int
-	Height       int
-	InitImageURL *string
-	MaskImageURL *string
-	Strength     float64
-	Number       int
+	Prompt          string
+	NegativePrompts []string
+	RawPrompt       string
+	Width           int
+	Height          int
+	InitImageURL    *string
+	MaskImageURL    *string
+	Strength        float64
+	Number          int
 }
 
 type ImageService interface {
