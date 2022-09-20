@@ -144,12 +144,11 @@ func resolveContent(content string) (prompt string, negativePrompts []string, wi
 
 	spl := strings.Split(content, "##")
 	if len(spl) == 1 {
-		nps := resolveNegativePrompts(spl[0])
-		return content, nps, 0, 0, 0, 0, nil
+		prompt, negativePrompts := resolveNegativePrompts(spl[0])
+		return prompt, negativePrompts, 0, 0, 0, 0, nil
 	}
 
-	prompt = spl[0]
-	negativePrompts = resolveNegativePrompts(spl[0])
+	prompt, negativePrompts = resolveNegativePrompts(spl[0])
 	optstr := spl[1]
 
 	if err := commandline.ParseArgs(optstr, &opt); err != nil {
@@ -186,15 +185,18 @@ func resolveSize(value string) (width, height int, err error) {
 	return
 }
 
-func resolveNegativePrompts(content string) []string {
-	reg := regexp.MustCompile(`-\((.+)\)`).FindStringSubmatch(content)
-	if len(reg) == 1 {
-		return []string{}
+func resolveNegativePrompts(content string) (prompt string, negativePrompts []string) {
+	spl := strings.Split(content, "-(")
+	if len(spl) == 1 {
+		return spl[0], []string{}
 	}
 
+	prompt = spl[0]
+
+	reg := regexp.MustCompile(`-\((.+)\)`).FindStringSubmatch(spl[1])
 	ps := strings.Split(reg[1], ",")
 
-	return lo.Map(ps, func(p string, _ int) string {
+	return prompt, lo.Map(ps, func(p string, _ int) string {
 		return strings.TrimSpace(p)
 	})
 }
