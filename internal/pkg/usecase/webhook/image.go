@@ -8,12 +8,10 @@ import (
 	"imagen/internal/pkg/infra/discord"
 	"imagen/internal/pkg/infra/environment"
 	"imagen/internal/pkg/infra/service"
-	"regexp"
 	"strconv"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/samber/lo"
 )
 
 type ImageUseCase struct {
@@ -101,21 +99,21 @@ func (u ImageUseCase) generate(ctx context.Context, guildID, channelID, userID, 
 		initImageURL = &message.Attachments[0].URL
 	}
 
-	prompt, negativePrompts, width, height, strength, number, err := resolveContent(message.Content)
+	prompt, negativePrompt, width, height, strength, number, err := resolveContent(message.Content)
 	if err != nil {
 		return fmt.Errorf("generate: %w", err)
 	}
 
 	command := domain.ImageGenerateComamnd{
-		Prompt:          prompt,
-		NegativePrompts: negativePrompts,
-		RawPrompt:       message.Content,
-		Width:           width,
-		Height:          height,
-		Strength:        strength,
-		InitImageURL:    initImageURL,
-		MaskImageURL:    maskImageURL,
-		Number:          number,
+		Prompt:         prompt,
+		NegativePrompt: negativePrompt,
+		RawPrompt:      message.Content,
+		Width:          width,
+		Height:         height,
+		Strength:       strength,
+		InitImageURL:   initImageURL,
+		MaskImageURL:   maskImageURL,
+		Number:         number,
 	}
 
 	if err := u.imageService.Generate(ctx, command, imagenExtra(interactionToken, guildID, channelID, userID, message.ID)); err != nil {
@@ -135,7 +133,7 @@ func imagenExtra(interactionToken, guildID, channelID, userID, messageID string)
 	}
 }
 
-func resolveContent(content string) (prompt string, negativePrompts []string, width, height int, strength float64, number int, err error) {
+func resolveContent(content string) (prompt string, negativePrompt string, width, height int, strength float64, number int, err error) {
 	var opt struct {
 		Size     string  `long:"size"`
 		Strength float64 `short:"s" long:"strength"`
@@ -148,16 +146,16 @@ func resolveContent(content string) (prompt string, negativePrompts []string, wi
 		return prompt, negativePrompts, 0, 0, 0, 0, nil
 	}
 
-	prompt, negativePrompts = resolveNegativePrompts(spl[0])
+	prompt, negativePrompt = resolveNegativePrompts(spl[0])
 	optstr := spl[1]
 
 	if err := commandline.ParseArgs(optstr, &opt); err != nil {
-		return "", nil, 0, 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
+		return "", "", 0, 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
 	}
 
 	width, height, err = resolveSize(opt.Size)
 	if err != nil {
-		return "", nil, 0, 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
+		return "", "", 0, 0, 0, 0, fmt.Errorf("resolveContent: %w", err)
 	}
 
 	strength = opt.Strength
@@ -185,18 +183,14 @@ func resolveSize(value string) (width, height int, err error) {
 	return
 }
 
-func resolveNegativePrompts(content string) (prompt string, negativePrompts []string) {
-	spl := strings.Split(content, "-(")
+func resolveNegativePrompts(content string) (prompt string, negativePrompt string) {
+	spl := strings.Split(content, "|")
 	if len(spl) == 1 {
-		return spl[0], []string{}
+		return spl[0], ""
 	}
 
 	prompt = spl[0]
+	negativePrompt = spl[1]
 
-	reg := regexp.MustCompile(`-\((.+)\)`).FindStringSubmatch(spl[1])
-	ps := strings.Split(reg[1], ",")
-
-	return prompt, lo.Map(ps, func(p string, _ int) string {
-		return strings.TrimSpace(p)
-	})
+	return
 }

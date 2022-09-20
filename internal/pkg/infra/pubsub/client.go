@@ -28,16 +28,16 @@ func (c Client) PublishGenerateImage(ctx context.Context, command domain.ImageGe
 	data, err := json.Marshal(map[string]interface{}{
 		"event_name": "generate",
 		"params": map[string]interface{}{
-			"prompt":           command.Prompt,
-			"negative_prompts": command.NegativePrompts,
-			"raw_prompt":       command.RawPrompt,
-			"width":            command.Width,
-			"height":           command.Height,
-			"strength":         command.Strength,
-			"init_image_url":   command.InitImageURL,
-			"mask_image_url":   command.MaskImageURL,
-			"number":           command.Number,
-			"extra":            extra,
+			"prompt":          command.Prompt,
+			"negative_prompt": command.NegativePrompt,
+			"raw_prompt":      command.RawPrompt,
+			"width":           command.Width,
+			"height":          command.Height,
+			"strength":        command.Strength,
+			"init_image_url":  command.InitImageURL,
+			"mask_image_url":  command.MaskImageURL,
+			"number":          command.Number,
+			"extra":           extra,
 		},
 	})
 
