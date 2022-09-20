@@ -30,6 +30,7 @@ func (c Client) PublishGenerateImage(ctx context.Context, command domain.ImageGe
 		"params": map[string]interface{}{
 			"prompt":           command.Prompt,
 			"negative_prompts": command.NegativePrompts,
+			"raw_prompt":       command.RawPrompt,
 			"width":            command.Width,
 			"height":           command.Height,
 			"strength":         command.Strength,
